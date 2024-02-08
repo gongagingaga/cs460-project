@@ -23,32 +23,44 @@ void removeComments(std::string filename, std::string newfile){
 		std::cerr << "unable to open file" << std::endl;
 		exit(1);
 	}
+	
+	//count line number;
+	int line = 0;
 
 	char c;
 	file.get(c);
 	while(!file.eof()) {
+		//check for newlines for line count;
+		if(c == '\n')line++;
 		//both branches start at a /
 		if(c == '/'){
 			file.get(c);
+			
 			//check if double slash comment
 			if(c == '/'){
 				while(c != '\n' && !file.eof()){
 					file.get(c);
+			
 				}
 				newFile << '\n';
+				line++;
 				file.get(c);
 				continue; //stops after \n
 
 			//check if /* comment
 			}else if(c == '*'){
 				file.get(c);
+			
+				int commentStart = line;
 				do{	//do-while to not repeat code
 					if(c == '*' && !file.eof()){
 						file.get(c);
+			
 						if(c == '/'){ //checks for end of comment
-							if(isspace(c))file.get(c); //eats the newline
+							if(c == '\n')file.get(c); //eats the newline
 													   //after the /
 							file.get(c); //reads the actual next value
+			
 							break;
 
 						}
@@ -58,16 +70,25 @@ void removeComments(std::string filename, std::string newfile){
 						//we want to keep the line numbers the same
 						//so keep the new lines in
 						newFile << c;
+						line++;
 
 					}
 					file.get(c); //iterate
 				}while(!file.eof());
+				//if we get here it's a problem
+				if(file.eof()){
+					std::cerr << "ERROR: Program contains C-style, unterminated comment on line " << commentStart << std::endl;
+					exit(3);
+				}
 			}
 		}
 		
 		newFile << c; //irrelevant character or one passed in after the */ 
 		file.get(c); //iterate
+		
 	}
+
+	std::cout << line << std::endl;
 	newFile.close();
 }
 
