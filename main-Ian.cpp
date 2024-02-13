@@ -47,8 +47,10 @@ int main() {
                     }
                     if(thing == '\n'){
                         newLines++;
+                        spaces += '\n';
+                    }else {
+                        spaces += ' ';
                     }
-                    spaces += ' ';
                 }
                 if(myFile.eof()){
                     cout << "There is an unclosed comment on line number ";
