@@ -26,10 +26,10 @@ int main(int argc, char* argv[]) {
     char currChar;
     while(inFile.get(currChar)){
         // edge case of terminating block comment before starting one
-        if(currChar == '*'){
+        if(currChar == '*' && !inQuote){
             char c = inFile.peek();
             if(c == '/'){
-                std::cerr << "ERROR: Program contains C-style, " 
+                std::cerr << "ERROR1: Program contains C-style, " 
                     << "unterminated comment on line " 
                     << lineNumber 
                     << std::endl;
