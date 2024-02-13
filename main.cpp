@@ -4,10 +4,6 @@
 
 using namespace std;
 
-void checkBlockEnd(){
-
-}
-
 int main(int argc, char* argv[]) {
     string fileString = "";
     char thing;
@@ -17,10 +13,20 @@ int main(int argc, char* argv[]) {
 
     myFile.open(argv[1]);
     if(!myFile.is_open()){
+        cout << "File cannot be openned." << endl;
         return 1;
     }
 
     while(myFile.get(thing)){
+        if(thing == '*'){
+            char c = myFile.peek();
+            if(c == '/'){
+                cout << "There is a close block comment on line ";
+                cout << lineNumber;
+                cout << " with no open block comment." << endl;
+                exit(3);
+            }
+        }
         if(thing == '/' && !inQuote){
             myFile.get(thing);
             if(thing == '/'){
