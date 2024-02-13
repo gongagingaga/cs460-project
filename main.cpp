@@ -1,104 +1,80 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
-#include <iostream>
 
+using namespace std;
 
-//comment remover
-//takes in a filename, removes comments and reduces them to newlines, then 
-//returns a new file name with the changes applied. At this point this may
-//be merely for debug purposes, might be void later.
-void removeComments(std::string filename, std::string newfile){
-	//open file for reading
-	std::ifstream file(filename); 
-	if(!file.is_open()){ 
-		std::cerr << "unable to open file" << std::endl;
-		exit(1);
-	}
-	
-	//open file for rewritting
-	std::ofstream newFile(newfile);
-	if(!newFile.is_open()){ 
-		std::cerr << "unable to open file" << std::endl;
-		exit(1);
-	}
-	
-	//count line number;
-	int line = 0;
+void checkBlockEnd(){
 
-	char c;
-	file.get(c);
-	while(!file.eof()) {
-		//check for newlines for line count;
-		if(c == '\n')line++;
-		//both branches start at a /
-		if(c == '/'){
-			file.get(c);
-			
-			//check if double slash comment
-			if(c == '/'){
-				while(c != '\n' && !file.eof()){
-					file.get(c);
-			
-				}
-				newFile << '\n';
-				line++;
-				file.get(c);
-				continue; //stops after \n
-
-			//check if /* comment
-			}else if(c == '*'){
-				file.get(c);
-			
-				int commentStart = line;
-				do{	//do-while to not repeat code
-					if(c == '*' && !file.eof()){
-						file.get(c);
-			
-						if(c == '/'){ //checks for end of comment
-							if(c == '\n')file.get(c); //eats the newline
-													   //after the /
-							file.get(c); //reads the actual next value
-			
-							break;
-
-						}
-						continue; //ignore if just a * in the comment
-
-					}else if(c == '\n') {
-						//we want to keep the line numbers the same
-						//so keep the new lines in
-						newFile << c;
-						line++;
-
-					}
-					file.get(c); //iterate
-				}while(!file.eof());
-				//if we get here it's a problem
-				if(file.eof()){
-					std::cerr << "ERROR: Program contains C-style, unterminated comment on line " << commentStart << std::endl;
-					exit(3);
-				}
-			}
-		}
-		
-		newFile << c; //irrelevant character or one passed in after the */ 
-		file.get(c); //iterate
-		
-	}
-
-	std::cout << line << std::endl;
-	newFile.close();
 }
 
-int main(int argc, char* argv[]){
-	if(argc != 3){
-		std::cerr << "Usage: ./aaa [input filename] [output filename]" 
-			<< std::endl;
-		exit(2);
-	}
-	std::string a = argv[1];
-	std::string b = argv[2];
-	removeComments(a, b);
+int main(int argc, char* argv[]) {
+    string fileString = "";
+    char thing;
+    ifstream myFile;
+    int lineNumber = 1;
+    bool inQuote = false;
+
+    myFile.open(argv[1]);
+    if(!myFile.is_open()){
+        return 1;
+    }
+
+    while(myFile.get(thing)){
+        if(thing == '/' && !inQuote){
+            myFile.get(thing);
+            if(thing == '/'){
+                string spaces = "  ";
+                while(myFile.get(thing)){
+                    if(thing == '\n'){
+                        lineNumber++;
+                        spaces += '\n';
+                        break;
+                    }
+                    spaces += ' ';
+                }
+                fileString += spaces;
+            }else if(thing == '*'){
+                string spaces = "  ";
+                int newLines = 0;
+                while(myFile.get(thing)){
+                    if(thing == '*'){
+                        if(myFile.peek() == '/'){
+                            myFile.get(thing);
+                            spaces += "  ";
+                            break;
+                        }
+                    }
+                    if(thing == '\n'){
+                        newLines++;
+                        spaces += '\n';
+                    }else {
+                        spaces += ' ';
+                    }
+                }
+                if(myFile.eof()){
+                    cout << "There is an unclosed comment on line number ";
+                    cout << lineNumber << endl;
+                    exit(2);
+                }
+                fileString += spaces;
+                lineNumber += newLines;
+            }else{
+                fileString += "/";
+                fileString += thing;
+            }
+        }else{
+            if(thing == '\'' || thing == '"'){
+                inQuote = !inQuote;
+            }
+            fileString += thing;
+            if(thing == '\n'){
+                lineNumber++;
+            }
+        }
+    }
+
+    cout << fileString;
+
+    return 0;
 }
