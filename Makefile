@@ -11,7 +11,7 @@ SRCS = main.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 # Executable name
-EXEC = aaa 
+EXEC = cr 
 
 # Build rule
 $(EXEC): $(OBJS)

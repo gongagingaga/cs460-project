@@ -2,85 +2,100 @@
 #include <fstream>
 #include <string>
 
-using namespace std;
-
 int main(int argc, char* argv[]) {
-    string fileString = "";
-    char thing;
-    ifstream myFile;
-    int lineNumber = 1;
-    bool inQuote = false;
-
-    myFile.open(argv[1]);
-    if(!myFile.is_open()){
-        cout << "File cannot be openned." << endl;
+    // cheking for correct Input
+    if(argc != 2){
+        std::cerr << "Usage: ./cr [file_name]\n" 
+	        << "Optionally: ./cr [input filename] "
+            << ">> [output filename]" 
+            << std::endl;
+        exit(4);
+    }
+    
+    // open file
+    std::ifstream inFile;
+    inFile.open(argv[1]);
+    if(!inFile.is_open()){
+        std::cout << "File cannot be openned." << std::endl;
         return 1;
     }
 
-    while(myFile.get(thing)){
-        if(thing == '*'){
-            char c = myFile.peek();
+    int lineNumber = 1;
+    bool inQuote = false;
+    std::string output = "";
+    char currChar;
+    while(inFile.get(currChar)){
+        // edge case of terminating block comment before starting one
+        if(currChar == '*'){
+            char c = inFile.peek();
             if(c == '/'){
-                cout << "There is a close block comment on line ";
-                cout << lineNumber;
-                cout << " with no open block comment." << endl;
+                std::cerr << "ERROR: Program contains C-style, " 
+                    << "unterminated comment on line " 
+                    << lineNumber 
+                    << std::endl;
                 exit(3);
             }
         }
-        if(thing == '/' && !inQuote){
-            myFile.get(thing);
-            if(thing == '/'){
-                string spaces = "  ";
-                while(myFile.get(thing)){
-                    if(thing == '\n'){
+        if(currChar == '/' && !inQuote){
+            inFile.get(currChar);
+            //start of single line comment
+            if(currChar == '/'){
+                std::string spaces = "  ";
+                while(inFile.get(currChar)){
+                    if(currChar == '\n'){
                         lineNumber++;
                         spaces += '\n';
                         break;
                     }
                     spaces += ' ';
                 }
-                fileString += spaces;
-            }else if(thing == '*'){
-                string spaces = "  ";
+                output += spaces;
+            }else if(currChar == '*'){ //start of multiline comment
+                std::string spaces = "  ";
                 int newLines = 0;
-                while(myFile.get(thing)){
-                    if(thing == '*'){
-                        if(myFile.peek() == '/'){
-                            myFile.get(thing);
+                while(inFile.get(currChar)){
+                    if(currChar == '*'){
+                        if(inFile.peek() == '/'){
+                            inFile.get(currChar);
                             spaces += "  ";
                             break;
                         }
                     }
-                    if(thing == '\n'){
+                    if(currChar == '\n'){
                         newLines++;
                         spaces += '\n';
                     }else {
                         spaces += ' ';
                     }
                 }
-                if(myFile.eof()){
-                    cout << "There is an unclosed comment on line number ";
-                    cout << lineNumber << endl;
-                    exit(2);
+                // checking for unterminated multiline comment
+                if(inFile.eof()){
+                    std::cerr << "ERROR: Program contains C-style, " 
+                        << "unterminated comment on line " 
+                        << lineNumber 
+                        << std::endl;
+                        exit(2);
                 }
-                fileString += spaces;
+                output += spaces;
                 lineNumber += newLines;
             }else{
-                fileString += "/";
-                fileString += thing;
+                output += "/";
+                output += currChar;
             }
         }else{
-            if(thing == '\'' || thing == '"'){
+            // checking edge case of comments in quotes
+            if(currChar == '\'' || currChar == '"'){
                 inQuote = !inQuote;
             }
-            fileString += thing;
-            if(thing == '\n'){
+            output += currChar;
+            if(currChar == '\n'){
                 lineNumber++;
             }
         }
     }
-
-    cout << fileString;
+    
+    // output new version of the file 
+    std::cout << output;
 
     return 0;
 }

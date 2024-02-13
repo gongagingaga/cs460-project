@@ -4,15 +4,17 @@ In this project we will be making an interpreter that can ignore comments, token
 
 
 phase 1:
-	can now ignore comments, given a c++ commented file, will now create a new
-	file with name provided without the comments, being replaced by new line
-	characters. still need to make it add a space for every commented character including the / and /*. 
+	can now ignore comments, given a c-like commented file, will now output to
+    console the uncommented version.
 
-	Usage: ./aaa [input filename] [output filename]
 
-Benito Sanchez - Lead Programmer
+	Usage: ./cr [input filename] 
+	Optionally: ./cr [input filename] >> [output filename]
+
 
 Ian Boskin - Lead Programmer
+
+Benito Sanchez - Lead Programmer
 
 Dawson McCahon - Lead Programmer
 
