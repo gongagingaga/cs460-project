@@ -1,23 +1,13 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
-int main(int argc, char* argv[]) {
-    // cheking for correct Input
-    if(argc != 2){
-        std::cerr << "Usage: ./cr [file_name]\n" 
-	        << "Optionally: ./cr [input filename] "
-            << ">> [output filename]" 
-            << std::endl;
-        exit(4);
-    }
-    
+std::string removeComments(std::string filename){
     // open file
     std::ifstream inFile;
-    inFile.open(argv[1]);
+    inFile.open(filename);
     if(!inFile.is_open()){
         std::cout << "File cannot be openned." << std::endl;
-        return 1;
+        exit(1);
     }
 
     int lineNumber = 1;
@@ -50,6 +40,7 @@ int main(int argc, char* argv[]) {
                     spaces += ' ';
                 }
                 output += spaces;
+                
             }else if(currChar == '*'){ //start of multiline comment
                 std::string spaces = "  ";
                 int newLines = 0;
@@ -96,6 +87,24 @@ int main(int argc, char* argv[]) {
     
     // output new version of the file 
     std::cout << output;
+ 
 
-    return 0;
+	return output;
+
+}
+
+
+int main(int argc, char* argv[]) {
+    // cheking for correct Input
+    if(argc != 2){
+        std::cerr << "Usage: ./cr [file_name]\n" 
+	        << "Optionally: ./cr [input filename] "
+            << ">> [output filename]" 
+            << std::endl;
+        exit(4);
+    }   
+    
+	std::string uncommentedFile = removeComments(argv[1]);
+	
+  	return 0;
 }
