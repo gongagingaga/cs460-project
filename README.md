@@ -8,8 +8,8 @@ phase 1:
     console the uncommented version.
 
 
-	Usage: ./cr [input filename] 
-	Optionally: ./cr [input filename] >> [output filename]
+	Usage: ./(exec) [input filename] 
+	Optionally: ./(exce) [input filename] >> [output filename]
 
 
 Ian Boskin - Lead Programmer
