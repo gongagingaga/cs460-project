@@ -1,5 +1,7 @@
+#include <cctype>
 #include <string>
 #include <iostream>
+#include <utility>
 #include <vector>
 #include <fstream>
 
@@ -73,7 +75,8 @@ enum BNF{
 	FUNCTION_DECLARATION,
 	PROCEDURE_DECLARATION,
 	MAIN_PROCEDURE,
-	PROGRAM
+	PROGRAM,
+	UNKNOWN
 };
 
 class Token{
@@ -230,6 +233,7 @@ class Token{
 	//im pretty sure this has to return the tokenized objects
 	std::vector<std::pair<std::string, BNF>> Tokenizer(std::string input){
 		std::vector<std::pair<std::string, BNF>> tokens;	
+		std::string dqs;
 		for ( long unsigned int curr = 0; curr < input.size(); curr++){
 			if (input.at(curr) == ' ' || input.at(curr) == '\n'){
 				continue;
@@ -291,13 +295,130 @@ class Token{
 					tokens.push_back(std::pair<std::string, BNF>
 							(std::string(1, input[curr]), BNF::CARET));
 					break;
+				case '"':
+					dqs += '"';
+					curr++;
+					while(input[curr] != '"' && curr != input.size() && input[curr] != '\n'){
+						dqs += input[curr];
+						curr++;
+					}
 
+					dqs += '"';
 
-				default:
+					// unterminated string
+					if(curr == input.size() ||  input[curr] == '\n') exit(5);
+
+					tokens.push_back(std::pair<std::string, BNF>
+							(dqs, BNF::DOUBLE_QUOTED_STRING));
+					dqs = "";
 					break;
+
+				case '\'':
+					dqs += '\'';
+					curr++;
+					while(input[curr] != '\'' && curr != input.size() && input[curr] != '\n'){
+						dqs += input[curr];
+						curr++;
+					}
+
+					dqs += '\'';
+
+					// unterminated string
+					if(curr == input.size() || input[curr] == '\n') exit(5); 
+					
+					tokens.push_back(std::pair<std::string, BNF>
+							(dqs, BNF::SINGLE_QUOTED_STRING));
+					dqs = "";
+					break;
+				case '=':
+					if(input[curr+1] == '='){
+						tokens.push_back(std::pair<std::string, BNF> 
+								("==", BNF::EQUALITY_EXPRESSION));
+						curr++;
+						break;
+					}
+					tokens.push_back(std::pair<std::string, BNF>
+							(std::string(1, input[curr]), BNF::ASSIGNMENT_OPERATOR));
+					break;
+				case '<':
+					if(input[curr+1] == '='){
+						tokens.push_back(std::pair<std::string, BNF>
+								("<=", BNF::LT_EQUAL));
+						curr++;
+						break;
+					}
+					tokens.push_back(std::pair<std::string, BNF>
+							(std::string(1, input[curr]), BNF::LT));
+					break;
+				case '>':
+					if(input[curr+1] == '='){
+						tokens.push_back(std::pair<std::string, BNF>
+								(">=", BNF::GT_EQUAL));
+						curr++;
+						break;
+					}
+					tokens.push_back(std::pair<std::string, BNF>
+							(std::string(1, input[curr]), BNF::GT));
+					break;
+
+				case '|':
+					if(input[curr+1] == '|'){
+						tokens.push_back(std::pair<std::string, BNF>
+								("||", BNF::BOOLEAN_OR));
+						curr++;
+						break;
+					}
+					tokens.push_back(std::pair<std::string, BNF>
+							(std::string(1, input[curr]), BNF::UNKNOWN));
+					break;
+
+				case '&':
+					if(input[curr+1] == '&'){
+						tokens.push_back(std::pair<std::string, BNF>
+								("&&", BNF::BOOLEAN_AND));
+						curr++;
+						break;
+					}
+					//maybe i should actually return an error here, check in with other about this
+					tokens.push_back(std::pair<std::string, BNF>
+							(std::string(1, input[curr]), BNF::UNKNOWN)); // both this and | dont have a meaning on their own i think(?)
+					break;
+
+				case '!':
+					if(input[curr+1] == '='){
+						tokens.push_back(std::pair<std::string, BNF>
+								("!=", BNF::BOOLEAN_NOT_EQUAL));
+						curr++;
+						break;
+					}
+					tokens.push_back(std::pair<std::string, BNF>
+							(std::string(1, input[curr]), BNF::BOOLEAN_NOT));
+					break;
+				default:
+					if(std::isalpha(input[curr])){
+						dqs += '"';
+						curr++;
+						while(input[curr] != ' ' && curr != input.size() && input[curr] != '\n' && isalpha(input[curr])){
+							dqs += input[curr];
+							curr++;
+						}
+						//at this point it must be a string of something, could be anything though
+						// but we need to go through and check for every possible string here
+						// this is also where we would put identifiers, but we need to check for a
+						// data type before this, which im pretty sure isn't a token
+						if(dqs == "true") {
+							tokens.push_back(std::pair<std::string, BNF>
+								("!=", BNF::BOOLEAN_NOT_EQUAL));
+							break;
+						}
+						else if(dqs == "false"){
+							tokens.push_back(std::pair<std::string, BNF>
+								("!=", BNF::BOOLEAN_NOT_EQUAL));
+							break;
+						
+						}
+					}		
 			}
-			
-			
 		}
 		return tokens;
 	}
