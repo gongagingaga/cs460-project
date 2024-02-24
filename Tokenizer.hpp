@@ -12,6 +12,7 @@
 
 class Tokenizer {
 public:
+    Tokenizer() = default;
     void printTokens();
     std::vector<Token> tokenize(std::string input);
 private:
