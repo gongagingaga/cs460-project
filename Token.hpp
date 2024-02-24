@@ -1,6 +1,3 @@
-#ifndef TOKENIZERPROJECT_TOKEN_HPP
-#define TOKENIZERPROJECT_TOKEN_HPP
-
 #include <cctype>
 #include <string>
 #include <iostream>
@@ -116,6 +113,3 @@ private:
     bool _boolean = NULL;               //storage for BOOLEAN_TRUE and BOOLEAN_FALSE
     std::string _name;                  //storage for IDENTIFIER, DATATYPE_SPECIFIER
 };
-
-
-#endif //TOKENIZERPROJECT_TOKEN_HPP
