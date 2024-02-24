@@ -1,6 +1,3 @@
-#ifndef TOKENIZERPROJECT_TOKENIZER_HPP
-#define TOKENIZERPROJECT_TOKENIZER_HPP
-
 #include <cctype>
 #include <string>
 #include <iostream>
@@ -13,11 +10,8 @@
 class Tokenizer {
 public:
     Tokenizer() = default;
-    void printTokens();
+    void printTokens(std::vector<Token> tokens);
     std::vector<Token> tokenize(std::string input);
 private:
-    std::vector<Token> tokens;
+
 };
-
-
-#endif //TOKENIZERPROJECT_TOKENIZER_HPP
