@@ -1,6 +1,7 @@
 #include "Tokenizer.hpp"
 
-void Tokenizer::printTokens(){
+
+void Tokenizer::printTokens(std::vector<Token> tokens){
     for(auto token : tokens){
         std::cout << "[ " << token.toString() << " ]\n";
     }
@@ -199,11 +200,13 @@ std::vector<Token> Tokenizer::tokenize(std::string input){
 
 
 
-                /*
-                * NOTE: NOTHING BELOW HERE HAS BEEN REFACTORED TO THE TOKENIZER CLASS LAYOUT!!!
-                */
+                //NOTHING BELOW HERE HAS BEEN REFACTORED TO THE TOKENIZER CLASS LAYOUT!!!
+
 
             default:
+                /*
+                  commented out and replaced with PLACEHOLDER CODE for testing purposes
+                  
                 if(std::isalpha(input[curr])){
                     dqs += '"';
                     curr++;
@@ -226,7 +229,12 @@ std::vector<Token> Tokenizer::tokenize(std::string input){
                         break;
 
                     }
-                }
+                )
+                 */
+
+                //PLACEHOLDER CODE
+                newToken.bnfValue() = UNKNOWN;
+                tokens.push_back(newToken);
         }
     }
     return tokens;
