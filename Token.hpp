@@ -84,6 +84,8 @@ enum BNF{
 class Token {
 public:
     Token(): _isChar{false}, _isString{false}, _isInt{false}, _isFloat{false}, _isBool{false}, _isEOF{false} {};
+	
+	std::string BNFtoString(int bnf);
 
     void printValue();
 

@@ -34,9 +34,11 @@ void Parser::parseToken(Token token) {
 }
 
 void Parser::print() {
+	std::cout << "Token list:\n" << std::endl;
     for(int i = 0; i < tokens.size(); i++){
         tokens[i].printValue();
-        std::cout << std::endl;
+		std::cout << std::endl;
     }
+	std::cout << std::endl;
 }
 

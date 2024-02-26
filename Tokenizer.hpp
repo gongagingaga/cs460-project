@@ -18,7 +18,7 @@ public:
 private:
     std::string inputFileName;
     std::string uncommentedFile;
-    int currChar;
+    int currChar = 0;
 
 };
 

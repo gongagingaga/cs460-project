@@ -5,6 +5,7 @@ Tokenizer::Tokenizer(const std::string &inputFile): inputFileName{inputFile} {}
 
 Token Tokenizer::getToken() {
     Token newToken;
+	
     if( currChar >= uncommentedFile.length() ) {
         newToken.bnfValue() = EOF;
         newToken.isEOF() = true;
@@ -235,6 +236,10 @@ Token Tokenizer::getToken() {
             currChar++;
             c = uncommentedFile[currChar];
         }
+		if(c != ' '){
+			std::cout << "Syntax error on line X: invalid intger" << std::endl;
+			exit(7);
+		}
         newToken.bnfValue() = INTEGER;
         newToken.stringValue() = value;
         newToken.isString() = true;
