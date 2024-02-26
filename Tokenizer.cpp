@@ -14,6 +14,11 @@ Token Tokenizer::getToken() {
 
     char c = uncommentedFile[currChar];
 
+    if(c == '\n'){
+        currLine++;
+        currChar++;
+        return getToken();
+    }
     if(c == '('){
         newToken.bnfValue() = L_PAREN;
         newToken.charValue() = '(';
@@ -237,7 +242,7 @@ Token Tokenizer::getToken() {
             c = uncommentedFile[currChar];
         }
 		if(c != ' '){
-			std::cout << "Syntax error on line X: invalid intger" << std::endl;
+			std::cout << "Syntax error on line " + std::to_string(currLine) + ": invalid intger" << std::endl;
 			exit(7);
 		}
         newToken.bnfValue() = INTEGER;

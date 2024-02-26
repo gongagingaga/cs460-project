@@ -19,6 +19,7 @@ private:
     std::string inputFileName;
     std::string uncommentedFile;
     int currChar = 0;
+    int currLine = 1;
 
 };
 
