@@ -9,6 +9,7 @@ Token Tokenizer::getToken() {
     if( currChar >= uncommentedFile.length() ) {
         newToken.bnfValue() = EOF;
         newToken.isEOF() = true;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
 
@@ -24,6 +25,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = '(';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == ')') {
@@ -31,6 +33,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = ')';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '{') {
@@ -38,6 +41,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = '{';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '}') {
@@ -45,6 +49,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = '}';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == ';') {
@@ -52,6 +57,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = ';';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '[') {
@@ -59,6 +65,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = '[';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == ']') {
@@ -66,6 +73,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = ']';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == ',') {
@@ -73,6 +81,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = ',';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '+') {
@@ -80,6 +89,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = '+';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '*') {
@@ -87,6 +97,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = '*';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '/') {
@@ -94,6 +105,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = '/';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '%') {
@@ -101,6 +113,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = '%';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '^') {
@@ -108,6 +121,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = '^';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '"') {
@@ -115,6 +129,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = '"';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
 
@@ -123,6 +138,7 @@ Token Tokenizer::getToken() {
         newToken.charValue() = '\'';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '=') {
@@ -131,12 +147,14 @@ Token Tokenizer::getToken() {
             newToken.stringValue() = "==";
             newToken.isString() = true;
             currChar += 2;
+            newToken.setLineNumber(currLine);
             return newToken;
         }else {
             newToken.bnfValue() = ASSIGNMENT_OPERATOR;
             newToken.charValue() = '=';
             newToken.isChar() = true;
             currChar++;
+            newToken.setLineNumber(currLine);
             return newToken;
         }
     }
@@ -146,12 +164,14 @@ Token Tokenizer::getToken() {
             newToken.stringValue() = "<=";
             newToken.isString() = true;
             currChar += 2;
+            newToken.setLineNumber(currLine);
             return newToken;
         }else{
             newToken.bnfValue() = LT;
             newToken.charValue() = '<';
             newToken.isChar() = true;
             currChar++;
+            newToken.setLineNumber(currLine);
             return newToken;
         }
     }
@@ -161,12 +181,14 @@ Token Tokenizer::getToken() {
             newToken.stringValue() = ">=";
             newToken.isString() = true;
             currChar += 2;
+            newToken.setLineNumber(currLine);
             return newToken;
         }else{
             newToken.bnfValue() = GT;
             newToken.charValue() = '>';
             newToken.isChar() = true;
             currChar++;
+            newToken.setLineNumber(currLine);
             return newToken;
         }
     }
@@ -176,10 +198,12 @@ Token Tokenizer::getToken() {
             newToken.stringValue() = "||";
             newToken.isString();
             currChar += 2;
+            newToken.setLineNumber(currLine);
             return newToken;
         }else {
             newToken.bnfValue() = UNKNOWN;
             currChar++;
+            newToken.setLineNumber(currLine);
             return newToken;
         }
     }
@@ -189,10 +213,12 @@ Token Tokenizer::getToken() {
             newToken.stringValue() = "&&";
             newToken.isString() = true;
             currChar += 2;
+            newToken.setLineNumber(currLine);
             return newToken;
         }
         newToken.bnfValue() = UNKNOWN;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '!') {
@@ -201,12 +227,14 @@ Token Tokenizer::getToken() {
             newToken.stringValue() = "!=";
             newToken.isString() = true;
             currChar += 2;
+            newToken.setLineNumber(currLine);
             return newToken;
         }
         newToken.bnfValue() = BOOLEAN_NOT;
         newToken.charValue() = '!';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(isalpha(c)){
@@ -222,6 +250,7 @@ Token Tokenizer::getToken() {
         newToken.bnfValue() = IDENTIFIER;
         newToken.stringValue() = value;
         newToken.isString() = true;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(isdigit(c)){
@@ -248,6 +277,7 @@ Token Tokenizer::getToken() {
         newToken.bnfValue() = INTEGER;
         newToken.stringValue() = value;
         newToken.isString() = true;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     if(c == '-') {
@@ -271,12 +301,14 @@ Token Tokenizer::getToken() {
             newToken.bnfValue() = INTEGER;
             newToken.stringValue() = value;
             newToken.isString() = true;
+            newToken.setLineNumber(currLine);
             return newToken;
         }
         newToken.bnfValue() = MINUS;
         newToken.charValue() = '-';
         newToken.isChar() = true;
         currChar++;
+        newToken.setLineNumber(currLine);
         return newToken;
     }
     currChar++;
@@ -296,6 +328,7 @@ Token Tokenizer::getStringToken(char terminator) {
     newToken.bnfValue() = STRING;
     newToken.stringValue() = value;
     newToken.isString() = true;
+    newToken.setLineNumber(currLine);
     return newToken;
 }
 

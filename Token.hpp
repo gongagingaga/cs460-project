@@ -103,6 +103,9 @@ public:
     bool &isBool() { return _isBool; };
     bool &isEOF() { return _isEOF; };
 
+    void setLineNumber(int lineNum) {_lineNumber = lineNum;};
+    int getLineNumber() {return _lineNumber;};
+
 private:
     int _intValue;
     float _floatValue;
@@ -111,6 +114,7 @@ private:
     std::string _stringValue;
     int _bnf;
     bool _isChar, _isString, _isInt, _isFloat, _isBool, _isEOF;
+    int _lineNumber;
 };
 
 
