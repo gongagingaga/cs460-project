@@ -31,6 +31,7 @@ public:
     void createCST();
     void checkFunctionDeclaration();
     void checkParameterList();
+
     bool parseProgram();
     bool parseMainProcedure();
     bool parseProcedureDeclaration();
@@ -60,6 +61,47 @@ public:
     bool parseIdentifierAndIdentifierArrayList();
     bool parseIdentifierArrayList();
     bool parseIdentifierList();
+    bool parseIdentifier();
+    bool parseInteger();
+    bool parseWholeNum();
+    bool parseLetterDigitUnderscore();
+    bool parseLetterUnderscore();
+    bool parseSingleQuotedStr();
+    bool parseDoubleQuotedStr();
+    bool parseString();
+    bool parseBooleanFalse();
+    bool parseBooleanTrue();
+    bool parseBooleanNotEqual();
+    bool parseBooleanEqual();
+    bool parseBooleanNot();
+    bool parseBooleanOr();
+    bool parseBooleanAnd();
+    bool parseGTequal();
+    bool parseLTequal();
+    bool parseGT();
+    bool parseLT();
+    bool parseCaret();
+    bool parseModulo();
+    bool parseDivide();
+    bool parseAsterisk();
+    bool parseMinus();
+    bool parsePlus();
+    bool parseAssignmentOperator();
+    bool parseComma();
+    bool parseSemicolon();
+    bool parseSingleQuote();
+    bool parseDoubleQuote();
+    bool parseRBrace();
+    bool parseLBrace();
+    bool parseRParenthesis();
+    bool parseLParenthesis();
+    bool parseRBracket();
+    bool parseLBracket();
+    bool parseHexDigit();
+    bool parseDigit();
+    bool parseLetter();
+    bool parseEscapeCharacter();
+    bool parseCharacter();
 
 
 private:
