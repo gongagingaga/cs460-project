@@ -9,7 +9,10 @@
 
 class Node {
 public:
-    Node(const std::string inputValue) : value(inputValue), leftChild(nullptr), rightChild(nullptr) {};
+    Node(std::string inputValue) : value(inputValue), leftChild(nullptr), rightChild(nullptr) {};
+    Node(char inputValue) : leftChild(nullptr), rightChild(nullptr) {
+        value = std::to_string(inputValue);
+    };
     Node* getLeftChild() {return leftChild;};
     Node* getRightChild() {return rightChild;};
     void setLeftChild(Node* inputLeftChild) {leftChild = inputLeftChild;};
@@ -23,51 +26,53 @@ private:
 
 class Parser {
 public:
-    Parser(const std::string fileName): tokenizer{Tokenizer(fileName)}, CST(nullptr), currNode(nullptr) {};
+    Parser(const std::string fileName): tokenizer{Tokenizer(fileName)}, CST(nullptr) {
+        startNode = new Node("start");
+        currNode = startNode;
+    };
     void parseFile();
     void parseToken(Token token);
     std::vector<Token> getTokens() {return tokens;};
     void print();
-    void createCST();
     void checkFunctionDeclaration();
     void checkParameterList();
 
     bool parseProgram();
-    bool parseMainProcedure();
-    bool parseProcedureDeclaration();
-    bool parseFunctionDeclaration();
-    bool parseParameterList();
-    bool parseBlockStatement();
-    bool parseCompoundStatement();
-    bool parseStatement();
-    bool parseReturnStatement();
-    bool parseDeclarationStatement();
-    bool parseUserDefinedFunction();
-    bool parseGetcharFunction();
-    bool parsePrintfStatement();
-    bool parseAssignmentStatement();
-    bool parseIterationStatement();
-    bool parseSelectionStatement();
-    bool parseExpression();
-    bool parseInitializationExpression();
-    bool parseBooleanExpression();
-    bool parseNumericalExpression();
-    bool parseRelationalExpression();
-    bool parseEqualityExpression();
-    bool parseBooleanOperator();
-    bool parseNumericalOperator();
-    bool parseNumericalOperand();
-    bool parseDatatypeSpecifier();
-    bool parseIdentifierAndIdentifierArrayList();
-    bool parseIdentifierArrayList();
-    bool parseIdentifierList();
-    bool parseIdentifier();
-    bool parseInteger();
-    bool parseWholeNum();
-    bool parseLetterDigitUnderscore();
-    bool parseLetterUnderscore();
-    bool parseSingleQuotedStr();
-    bool parseDoubleQuotedStr();
+    bool parseMainProcedure(bool error);
+    bool parseProcedureDeclaration(bool error);
+    bool parseFunctionDeclaration(bool error);
+    bool parseParameterList(bool error);
+    bool parseBlockStatement(bool error);
+    bool parseCompoundStatement(bool error);
+    bool parseStatement(bool error);
+    bool parseReturnStatement(bool error);
+    bool parseDeclarationStatement(bool error);
+    bool parseUserDefinedFunction(bool error);
+    bool parseGetcharFunction(bool error);
+    bool parsePrintfStatement(bool error);
+    bool parseAssignmentStatement(bool error);
+    bool parseIterationStatement(bool error);
+    bool parseSelectionStatement(bool error);
+    bool parseExpression(bool error);
+    bool parseInitializationExpression(bool error);
+    bool parseBooleanExpression(bool error);
+    bool parseNumericalExpression(bool error);
+    bool parseRelationalExpression(bool error);
+    bool parseEqualityExpression(bool error);
+    bool parseBooleanOperator(bool error);
+    bool parseNumericalOperator(bool error);
+    bool parseNumericalOperand(bool error);
+    bool parseDatatypeSpecifier(bool error);
+    bool parseIdentifierAndIdentifierArrayList(bool error);
+    bool parseIdentifierArrayList(bool error);
+    bool parseIdentifierList(bool error);
+    bool parseIdentifier(bool error);
+    bool parseInteger(bool error);
+    bool parseWholeNum(bool error);
+    bool parseLetterDigitUnderscore(bool error);
+    bool parseLetterUnderscore(bool error);
+    bool parseSingleQuotedStr(bool error);
+    bool parseDoubleQuotedStr(bool error);
     bool parseString();
     bool parseBooleanFalse();
     bool parseBooleanTrue();
@@ -104,13 +109,13 @@ public:
     bool parseCharacter();
 
 
-private:
+//private:
     std::vector<Token> tokens;
     Tokenizer tokenizer;
     int currToken = 0;
     Node* CST;
     Node* currNode;
-    bool hasMain = false;
+    Node* startNode;
 };
 
 

@@ -11,6 +11,7 @@ class Tokenizer {
 public:
     explicit Tokenizer(const std::string &inputFile);
     void uncommentFile();
+    void printUncommentedFile(){std::cout << uncommentedFile << std::endl;};
 
     Token getToken();
     Token getStringToken(char terminator);

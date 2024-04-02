@@ -85,6 +85,28 @@ Token Tokenizer::getToken() {
         return newToken;
     }
     if(c == '+') {
+        if(isdigit(uncommentedFile[currChar + 1])) {
+            bool isFloat = false;
+            std::string value = "";
+            currChar++;
+            c = uncommentedFile[currChar];
+            while(c == '.' || isdigit(c)){
+                if(c == '.' && !isFloat){
+                    isFloat = true;
+                }else if(c == '.'){
+                    std::cout << "Error with float and int" << std::endl;
+                    exit(2);
+                }
+                value += c;
+                currChar++;
+                c = uncommentedFile[currChar];
+            }
+            newToken.bnfValue() = INTEGER;
+            newToken.intValue() = std::stoi(value);
+            newToken.isInt() = true;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }
         newToken.bnfValue() = PLUS;
         newToken.charValue() = '+';
         newToken.isChar() = true;
@@ -270,13 +292,9 @@ Token Tokenizer::getToken() {
             currChar++;
             c = uncommentedFile[currChar];
         }
-		if(c != ' '){
-			std::cout << "Syntax error on line " + std::to_string(currLine) + ": invalid intger" << std::endl;
-			exit(7);
-		}
         newToken.bnfValue() = INTEGER;
-        newToken.stringValue() = value;
-        newToken.isString() = true;
+        newToken.intValue() = std::stoi(value);
+        newToken.isInt() = true;
         newToken.setLineNumber(currLine);
         return newToken;
     }
@@ -299,8 +317,8 @@ Token Tokenizer::getToken() {
                 c = uncommentedFile[currChar];
             }
             newToken.bnfValue() = INTEGER;
-            newToken.stringValue() = value;
-            newToken.isString() = true;
+            newToken.intValue() = std::stoi(value);
+            newToken.isInt() = true;
             newToken.setLineNumber(currLine);
             return newToken;
         }
@@ -320,8 +338,17 @@ Token Tokenizer::getStringToken(char terminator) {
     std::string value = "";
     char c = uncommentedFile[currChar];
     while(c != terminator){
+        if(c == '\\'){
+            value += c;
+            currChar++;
+            c = uncommentedFile[currChar];
+        }
         value += c;
         currChar++;
+        if(currChar == uncommentedFile.length()){
+            std::cout << "Unterminated string that goes to end of file" << std::endl;
+            exit(2);
+        }
         c = uncommentedFile[currChar];
     }
     Token newToken;
