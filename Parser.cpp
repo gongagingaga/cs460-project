@@ -271,6 +271,10 @@ bool Parser::parseFunctionDeclaration(bool error) {
 bool Parser::parseParameterList(bool error) {
     int savedIdx = currToken;
     if(parseDatatypeSpecifier(false)){
+        if(tokens[currToken].isString() && (tokens[currToken].stringValue() == "char" || tokens[currToken].stringValue() == "bool" || tokens[currToken].stringValue() == "int" || tokens[currToken].stringValue() == "void")){
+            std::cout << "Syntax error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": reserved word " + tokens[currToken].stringValue() + " cannot be used for the name of a variable";
+            exit(2);
+        }
         if(parseIdentifier(false)){
             savedIdx = currToken;
             if(parseParameterList(false)){
@@ -394,12 +398,31 @@ bool Parser::parseReturnStatement(bool error) {
 
 bool Parser::parseDeclarationStatement(bool error) {
     int savedIdx = currToken;
-    if ( parseDatatypeSpecifier(false) && parseIdentifierAndIdentifierArrayList(false) && tokens[currToken].charValue() == ';') {
-        currToken++;
-        return true;
-    }
-    currToken = savedIdx;
-    if (parseDatatypeSpecifier(false) && parseIdentifier(false) && tokens[currToken].charValue() == ';') {
+    if (parseDatatypeSpecifier(false)) {
+        if(error && tokens[currToken].isString() && (tokens[currToken].stringValue() == "char" || tokens[currToken].stringValue() == "bool" || tokens[currToken].stringValue() == "int" || tokens[currToken].stringValue() == "void")){
+            std::cout << "Syntax error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": reserved word " + tokens[currToken].stringValue() + " cannot be used for the name of a variable";
+            exit(2);
+        }
+        if(parseIdentifier(false)) {
+            if (parseLBracket()) {
+                if (tokens[currToken].isInt() && tokens[currToken].intValue() > 0) {
+                    currToken++;
+                    if (parseRBracket() && tokens[currToken].charValue() == ';') {
+                        currToken++;
+                        return true;
+                    }
+                } else if (error) {
+                    std::cout << "Syntax error on line " + std::to_string(tokens[currToken].getLineNumber()) +
+                                 ": array declaration size must be a positive integer.";
+                    exit(2);
+                }
+                currToken--;
+                return false;
+            } else if (tokens[currToken].charValue() == ';') {
+                currToken++;
+                return true;
+            }
+        }
         currToken++;
         return true;
     }
@@ -501,6 +524,10 @@ bool Parser::parsePrintfStatement(bool error) {
 //<IDENTIFIER> <ASSIGNMENT_OPERATOR> <DOUBLE_QUOTED_STRING> <SEMICOLON>
 bool Parser::parseAssignmentStatement(bool error) {
     int savedIdx = currToken;
+    if(error && tokens[currToken].isString() && (tokens[currToken].stringValue() == "char" || tokens[currToken].stringValue() == "bool" || tokens[currToken].stringValue() == "int" || tokens[currToken].stringValue() == "void")){
+        std::cout << "Syntax error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": reserved word " + tokens[currToken].stringValue() + " cannot be used for the name of a variable";
+        exit(2);
+    }
     if ((parseIdentifierArrayList(false) || parseIdentifier(false)) && tokens[currToken].charValue() == '=') {
         currToken++;
         int savedIdx2 = currToken;
@@ -957,6 +984,10 @@ bool Parser::parseIdentifierArrayList(bool error) {
 //<IDENTIFIER> | <IDENTIFIER> <COMMA> |<IDENTIFIER_LIST>
 bool Parser::parseIdentifierList(bool error) {
     int savedIdx = currToken;
+    if(tokens[currToken].isString() && (tokens[currToken].stringValue() == "char" || tokens[currToken].stringValue() == "bool" || tokens[currToken].stringValue() == "int" || tokens[currToken].stringValue() == "void")){
+        std::cout << "Syntax error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": reserved word " + tokens[currToken].stringValue() + " cannot be used for the name of a variable";
+        exit(2);
+    }
     if(parseIdentifier(false) && parseComma() && parseIdentifierList(false)){
         return true;
     }
@@ -1031,7 +1062,7 @@ bool Parser::parseDoubleQuotedStr(bool error) {
     }
     currToken++;
     parseString();
-    if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '"')){
+    if(currToken <= tokens.size() && !(tokens[currToken].isChar() && tokens[currToken].charValue() == '"')){
         currToken -= 2;
         return false;
     }else if(error){

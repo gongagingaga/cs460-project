@@ -346,7 +346,7 @@ Token Tokenizer::getStringToken(char terminator) {
         value += c;
         currChar++;
         if(currChar == uncommentedFile.length()){
-            std::cout << "Unterminated string that goes to end of file" << std::endl;
+            std::cout << "Syntax Error on line " + std::to_string(currLine) + ": Unterminated double quote string.";
             exit(2);
         }
         c = uncommentedFile[currChar];
