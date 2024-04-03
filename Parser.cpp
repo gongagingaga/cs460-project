@@ -541,9 +541,22 @@ bool Parser::parseAssignmentStatement(bool error) {
             return true;
         }
         currToken = savedIdx2;
-        if (parseExpression(false) && tokens[currToken].charValue() == ';') {
-            currToken++;
-            return true;
+		int currLine = tokens[currToken].getLineNumber();
+        if (parseExpression(false) ){
+
+			//this is assuming that there wont be a declaration like:
+			// int a = 
+			//       10;
+			
+			while(tokens[currToken].getLineNumber() == currLine && tokens[currToken].charValue() != ';'){
+				//this is where we want to add every element to the cst,
+				//we currently just want it to move along 
+				currToken++;
+			}
+			if(tokens[currToken].isChar() && tokens[currToken].charValue() == ';'){
+				currToken++;
+				return true;
+			}
         }
         currToken = savedIdx2;
         if (parseUserDefinedFunction(false) && tokens[currToken].charValue() == ';'){
