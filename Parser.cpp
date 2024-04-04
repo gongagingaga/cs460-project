@@ -316,7 +316,7 @@ bool Parser::parseStatement(bool error) {
         parseSelectionStatement(true);
     }else if(tokens[currToken].isString() && tokens[currToken].stringValue() == "char" || tokens[currToken].stringValue() == "int" || tokens[currToken].stringValue() == "bool"){
         parseDeclarationStatement(true);
-    }else if(tokens[currToken].isString()){
+    }else if(tokens[currToken].isString() || tokens[currToken].isChar()){
         int savedIdx = currToken;
         if(parseUserDefinedFunction(false) && tokens[currToken].isChar() && tokens[currToken].charValue() == ';'){
             currToken++;
@@ -403,7 +403,7 @@ bool Parser::parseDeclarationStatement(bool error) {
             std::cout << "Syntax error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": reserved word " + tokens[currToken].stringValue() + " cannot be used for the name of a variable";
             exit(2);
         }
-        if(parseIdentifier(false)) {
+        if(parseIdentifierList(false)) {
             if (parseLBracket()) {
                 if (tokens[currToken].isInt() && tokens[currToken].intValue() > 0) {
                     currToken++;
@@ -585,7 +585,8 @@ bool Parser::parseAssignmentStatement(bool error) {
 bool Parser::parseIterationStatement(bool error) {
     //cannot assume for or while were parsed
     if (tokens[currToken].stringValue() == "for") {
-        if (error && tokens[currToken].stringValue() != "(") {
+        currToken++;
+        if (error && tokens[currToken].charValue() != '(') {
             std::cout << "Expected ( . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
@@ -594,7 +595,7 @@ bool Parser::parseIterationStatement(bool error) {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
-        if (error && tokens[currToken].stringValue() != ";") {
+        if (error && tokens[currToken].charValue() != ';') {
             std::cout << "Expected Semi-Colon . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
@@ -603,21 +604,28 @@ bool Parser::parseIterationStatement(bool error) {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
-        if (error && tokens[currToken].stringValue() != ";") {
+        if (error && tokens[currToken].charValue() != ';') {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
         currToken++;
+        if(parseIdentifier(false)){
+            if(tokens[currToken].isChar() && tokens[currToken].charValue() == '='){
+                currToken++;
+            }else{
+                currToken--;
+            }
+        }
         if (error && !parseExpression(false)) {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
-        if (error && tokens[currToken].stringValue() != ")") {
+        if (error && tokens[currToken].charValue() != ')') {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
         currToken++;
-        if (tokens[currToken].stringValue() != "{") {
+        if (tokens[currToken].charValue() == '{') {
             parseBlockStatement(true);
         }
         else {
@@ -723,13 +731,24 @@ bool Parser::parseExpression(bool error) {
 //<IDENTIFIER> <ASSIGNMENT_OPERATOR><SINGLE_QUOTED_STRING> |
 //<IDENTIFIER> <ASSIGNMENT_OPERATOR><DOUBLE_QUOTED_STRING>
 bool Parser::parseInitializationExpression(bool error) {
-    if (parseIdentifier(false) && tokens[currToken].charValue() == '=') {
-        return true;
-    }
-    else {
+    if (!(parseIdentifier(false) && tokens[currToken].charValue() == '=')) {
         std::cout << "Expected Init Expression. failed on line " + std::to_string(tokens[currToken].getLineNumber());
         exit(2);
     }
+    currToken++;
+    int savedIdx = currToken;
+    if(parseSingleQuotedStr(false)){
+        return true;
+    }
+    currToken = savedIdx;
+    if(parseDoubleQuotedStr(false)){
+        return true;
+    }
+    currToken = savedIdx;
+    if(parseExpression(false)){
+        return true;
+    }
+    currToken = savedIdx;
     return false;
 }
 
@@ -743,41 +762,75 @@ bool Parser::parseInitializationExpression(bool error) {
 //<NUMERICAL_EXPRESSION> <GT> <NUMERICAL_EXPRESSION>
 bool Parser::parseBooleanExpression(bool error) {
     if(parseBooleanTrue() || parseBooleanFalse()){
+        if(parseBooleanOperator(error)){
+            return parseBooleanExpression(error);
+        }
         return true;
     }
     int savedIdx = currToken;
+    if(parseIdentifier(false) && (parseBooleanEqual() || parseBooleanNotEqual() || parseLT() ||parseLTequal() || parseGT() || parseGTequal()) && parseSingleQuotedStr(false)){
+        if(parseBooleanOperator(error)){
+            return parseBooleanExpression(error);
+        }
+        return true;
+    }
+    currToken = savedIdx;
+    if(parseIdentifier(false) && (parseBooleanEqual() || parseBooleanNotEqual() || parseLT() ||parseLTequal() || parseGT() || parseGTequal()) && parseDoubleQuotedStr(false)){
+        if(parseBooleanOperator(error)){
+            return parseBooleanExpression(error);
+        }
+        return true;
+    }
+    currToken = savedIdx;
     if(parseNumericalExpression(false)){
         if(parseBooleanEqual() || parseBooleanNotEqual() || parseLT() ||parseLTequal() || parseGT() || parseGTequal()){
             if(parseNumericalExpression(false)){
+                if(parseBooleanOperator(error)){
+                    return parseBooleanExpression(error);
+                }
                 return true;
+            }else if(error){
+                std::cout << "Error in bool expression.";
+                exit(2);
             }
+            currToken = savedIdx;
             return false;
-        }else if(error){
-            std::cout << "Error in bool expression.";
-            exit(2);
         }
-        currToken=savedIdx;
+        currToken = savedIdx;
         return false;
     }
     currToken = savedIdx;
     if(parseLParenthesis() && parseBooleanExpression(false) && parseRParenthesis()){
+        if(parseBooleanOperator(error)){
+            return parseBooleanExpression(error);
+        }
         return true;
     }
     currToken = savedIdx;
     if(parseBooleanExpression(false) && parseBooleanOperator(false) && parseBooleanExpression(false)){
+        if(parseBooleanOperator(error)){
+            return parseBooleanExpression(error);
+        }
         return true;
     }
     currToken = savedIdx;
     if(parseIdentifier(false) && parseBooleanOperator(false) && parseBooleanExpression(false)){
+        if(parseBooleanOperator(error)){
+            return parseBooleanExpression(error);
+        }
         return true;
     }
     currToken = savedIdx;
     if(parseIdentifier(false)){
+        if(parseBooleanOperator(error)){
+            return parseBooleanExpression(error);
+        }
         return true;
     }
     currToken = savedIdx;
     return false;
 }
+
 
 //<NUMERICAL_OPERAND> | <L_PAREN><NUMERICAL_OPERAND> <R_PAREN> |
 //<NUMERICAL_OPERAND><NUMERICAL_OPERATOR> <NUMERICAL_EXPRESSION> |
@@ -1350,6 +1403,7 @@ bool Parser::parseBlockStatement(bool error) {
 
 bool Parser::parseEscapeCharacter() {
     if(tokens[currToken].isChar()){
+        currToken++;
         return true;
     }
     return false;
@@ -1357,6 +1411,7 @@ bool Parser::parseEscapeCharacter() {
 
 bool Parser::parseCharacter() {
     if(tokens[currToken].isChar()){
+        currToken++;
         return true;
     }
     return false;

@@ -270,8 +270,13 @@ Token Tokenizer::getToken() {
             c = uncommentedFile[currChar];
         }
         newToken.bnfValue() = IDENTIFIER;
-        newToken.stringValue() = value;
-        newToken.isString() = true;
+        if(value.length() == 1){
+            newToken.isChar() = true;
+            newToken.charValue() = value[0];
+        }else{
+            newToken.isString() = true;
+            newToken.stringValue() = value;
+        }
         newToken.setLineNumber(currLine);
         return newToken;
     }
@@ -352,9 +357,15 @@ Token Tokenizer::getStringToken(char terminator) {
         c = uncommentedFile[currChar];
     }
     Token newToken;
-    newToken.bnfValue() = STRING;
-    newToken.stringValue() = value;
-    newToken.isString() = true;
+    if(value.length() == 1){
+        newToken.bnfValue() = CHARACTER;
+        newToken.isChar() = true;
+        newToken.charValue() = value[0];
+    }else{
+        newToken.bnfValue() = STRING;
+        newToken.isString() = true;
+        newToken.stringValue() = value;
+    }
     newToken.setLineNumber(currLine);
     return newToken;
 }
