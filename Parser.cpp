@@ -1,4 +1,5 @@
 #include "Parser.hpp"
+#include <string>
 
 void Parser::parseFile() {
     tokenizer.uncommentFile();
@@ -48,11 +49,13 @@ void Parser::checkFunctionDeclaration() {
         std::cout << "Expected a datatype on line " + std::to_string(tokens[currToken].getLineNumber());
         exit(2);
     }
+	insert(tokens[currToken].stringValue());
     currToken++;
     if(!(tokens[currToken].isString() && (tokens[currToken].stringValue() != "getchar" || tokens[currToken].stringValue() != "printf"))){
         std::cout << "Expected an identifier on line " + std::to_string(tokens[currToken].getLineNumber());
         exit(2);
     }
+	insert(tokens[currToken].stringValue());
     currToken++;
     checkParameterList();
     if(!(tokens[currToken].isChar() && (tokens[currToken].charValue() == '{'))){
@@ -68,10 +71,14 @@ void Parser::checkParameterList() {
         std::cout << "Expected an ( on line " + std::to_string(tokens[currToken].getLineNumber());
         exit(2);
     }
+
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     if(tokens[currToken].isString() && tokens[currToken].stringValue() == "void"){
+		insert(tokens[currToken].stringValue());
         currToken++;
         if(tokens[currToken].isChar() && tokens[currToken].charValue() == ')'){
+			insert(std::string(1, tokens[currToken].charValue()));
             currToken++;
             return;
         }else{
@@ -80,7 +87,11 @@ void Parser::checkParameterList() {
         }
     }
     while(!(tokens[currToken].isChar() && tokens[currToken].charValue() != ')')){
-
+		if(tokens[currToken].isString()){
+			insert(tokens[currToken].stringValue());
+		}else{
+			insert(std::string(1, tokens[currToken].charValue()));
+		}
     }
 }
 
@@ -108,51 +119,44 @@ bool Parser::parseMainProcedure(bool error) {
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected procedure in main";
         exit(2);
     }
-    currNode->setLeftChild(new Node("procedure"));
-    currNode = currNode->getLeftChild();
+	insert(tokens[currToken].stringValue());
     currToken++;
     if(!(tokens[currToken].isString() && tokens[currToken].stringValue() == "main")){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected main in main";
         exit(2);
     }
-    currNode->setRightChild(new Node("main"));
-    currNode = currNode->getRightChild();
+	insert(tokens[currToken].stringValue());
     currToken++;
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '(')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected (";
         exit(2);
     }
-    currNode->setRightChild(new Node('('));
-    currNode = currNode->getRightChild();
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     if(!(tokens[currToken].isString() && tokens[currToken].stringValue() == "void")){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected void in main parameter list";
         exit(2);
     }
-    currNode->setRightChild(new Node("void"));
-    currNode = currNode->getRightChild();
+	insert(tokens[currToken].stringValue());
     currToken++;
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == ')')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected )";
         exit(2);
     }
-    currNode->setRightChild(new Node(')'));
-    currNode = currNode->getRightChild();
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '{')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected {";
         exit(2);
     }
-    currNode->setLeftChild(new Node('{'));
-    currNode = currNode->getLeftChild();
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     parseCompoundStatement(true);//should be block-----------------------------------------------------------------------------------------------------
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '}')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected }";
         exit(2);
     }
-    currNode->setLeftChild(new Node('}'));
-    currNode = currNode->getLeftChild();
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     return true;
 }
@@ -162,8 +166,7 @@ bool Parser::parseProcedureDeclaration( bool error) {
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected procedure in main";
         exit(2);
     }
-    currNode->setLeftChild(new Node("procedure"));
-    currNode = currNode->getLeftChild();
+	insert(tokens[currToken].stringValue());
     currToken++;
     if(!(tokens[currToken].isString())){
         std::cout << "Expected an identifier on line " + std::to_string(tokens[currToken].getLineNumber());
@@ -177,11 +180,13 @@ bool Parser::parseProcedureDeclaration( bool error) {
         std::cout << "Sytax Error on line " + std::to_string(tokens[currToken].getLineNumber()) + " : printf is a reserved identifier";
         exit(2);
     }
+	insert(tokens[currToken].stringValue());
     currToken++;
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '(')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected (";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
 
     if(tokens[currToken].stringValue() == "char" || tokens[currToken].stringValue() == "int" || tokens[currToken].stringValue() == "bool"){
@@ -190,23 +195,27 @@ bool Parser::parseProcedureDeclaration( bool error) {
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected void in main parameter list";
         exit(2);
     }else{
+		insert(tokens[currToken].stringValue());
         currToken++;
     }
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == ')')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected )";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '{')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected {";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     parseCompoundStatement(true);//should be block -----------------------------------------------------------------------------------------------------
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '}')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected }";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     return true;
 }
@@ -216,11 +225,13 @@ bool Parser::parseFunctionDeclaration(bool error) {
         std::cout << "Expected a datatype specifier on line " + std::to_string(tokens[currToken].getLineNumber());
         exit(2);
     }
+	insert(tokens[currToken].stringValue());
     currToken++;
     if(!tokens[currToken].isString() && !(tokens[currToken].stringValue() == "char" || tokens[currToken].stringValue() == "int" || tokens[currToken].stringValue() == "bool")){
         std::cout << "Expected a datatype specifier on line " + std::to_string(tokens[currToken].getLineNumber());
         exit(2);
     }
+	insert(tokens[currToken].stringValue());
     currToken++;
     if(!(tokens[currToken].isString())){
         std::cout << "Expected an identifier on line " + std::to_string(tokens[currToken].getLineNumber());
@@ -234,11 +245,13 @@ bool Parser::parseFunctionDeclaration(bool error) {
         std::cout << "Sytax Error on line " + std::to_string(tokens[currToken].getLineNumber()) + " : printf is a reserved identifier";
         exit(2);
     }
+	insert(tokens[currToken].stringValue());
     currToken++;
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '(')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected (";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
 
     if(tokens[currToken].stringValue() == "char" || tokens[currToken].stringValue() == "int" || tokens[currToken].stringValue() == "bool"){
@@ -247,23 +260,27 @@ bool Parser::parseFunctionDeclaration(bool error) {
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected void in main parameter list";
         exit(2);
     }else{
+		insert(tokens[currToken].stringValue());
         currToken++;
     }
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == ')')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected )";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '{')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected {";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     parseCompoundStatement(true);//block statement-----------------------------------------------------------------------------------------------------
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '}')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected }";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     return true;
 }
@@ -280,6 +297,7 @@ bool Parser::parseParameterList(bool error) {
             if(parseParameterList(false)){
                 return true;
             }
+			deleteRange(currToken-savedIdx);
             currToken = savedIdx;
             return true;
         }else if(error){
@@ -290,11 +308,10 @@ bool Parser::parseParameterList(bool error) {
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected Datatype specifier in the parameter list";
         exit(2);
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     return false;
 }
-
-//to do --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 bool Parser::parseCompoundStatement(bool error) {
     //block of code refers to this
@@ -314,14 +331,16 @@ bool Parser::parseStatement(bool error) {
         parseIterationStatement(true);
     }else if(tokens[currToken].isString() && tokens[currToken].stringValue() == "if"){
         parseSelectionStatement(true);
-    }else if(tokens[currToken].isString() && tokens[currToken].stringValue() == "char" || tokens[currToken].stringValue() == "int" || tokens[currToken].stringValue() == "bool"){
+    }else if(tokens[currToken].isString() && (tokens[currToken].stringValue() == "char" || tokens[currToken].stringValue() == "int" || tokens[currToken].stringValue() == "bool")){
         parseDeclarationStatement(true);
     }else if(tokens[currToken].isString() || tokens[currToken].isChar()){
         int savedIdx = currToken;
         if(parseUserDefinedFunction(false) && tokens[currToken].isChar() && tokens[currToken].charValue() == ';'){
+			insert(std::string(1, tokens[currToken].charValue()));
             currToken++;
             return true;
         }
+		deleteRange(currToken-savedIdx);
         currToken = savedIdx;
         parseAssignmentStatement(true);
     }else if(error){
@@ -334,25 +353,12 @@ bool Parser::parseStatement(bool error) {
 }
 
 
-//do these guys-----------------PLS CHECK THESE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//also check the error statemetns
-//need to find out where currtoken++
-
-
-
-
-//0-12 child/preteen\
-//13-18 teen/ older child
-//18-25 young adult also acceptable 18-30
-//25-60 middle ages depends on person really
-//60-end of life, older adult
-
-
 
 bool Parser::parseReturnStatement(bool error) {
     if(!(tokens[currToken].isString() && tokens[currToken].stringValue() == "return")){
         return false;
     }
+	insert(tokens[currToken].stringValue());
     currToken++;
     int savedIdx = currToken;
     if (parseExpression(false)) { //return <EXPRESSION> <SEMICOLON>
@@ -361,12 +367,14 @@ bool Parser::parseReturnStatement(bool error) {
                 std::cout << "Expected Semicolon at end of expression. failed on line " + std::to_string(tokens[currToken].getLineNumber());
                 exit(2);
             }else{
+				deleteRange(currToken-savedIdx);
                 currToken = savedIdx;
                 return false;
             }
         }
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if (parseSingleQuotedStr(false)){ //return <SINGLE_QUOTED_STRING> <SEMICOLON>
         if(!parseSemicolon()){
@@ -379,6 +387,7 @@ bool Parser::parseReturnStatement(bool error) {
         }
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if (parseDoubleQuotedStr(false)) { //return <DOUBLE_QUOTED_STRING> <SEMICOLON>
         if(!parseSemicolon()){
@@ -391,6 +400,7 @@ bool Parser::parseReturnStatement(bool error) {
         }
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     return false;
 }
@@ -406,8 +416,10 @@ bool Parser::parseDeclarationStatement(bool error) {
         if(parseIdentifierList(false)) {
             if (parseLBracket()) {
                 if (tokens[currToken].isInt() && tokens[currToken].intValue() > 0) {
+					insert(std::to_string(tokens[currToken].intValue()));
                     currToken++;
                     if (parseRBracket() && tokens[currToken].charValue() == ';') {
+						insert(std::string(1, tokens[currToken].charValue()));
                         currToken++;
                         return true;
                     }
@@ -416,16 +428,21 @@ bool Parser::parseDeclarationStatement(bool error) {
                                  ": array declaration size must be a positive integer.";
                     exit(2);
                 }
+				deleteRange(1);
                 currToken--;
                 return false;
             } else if (tokens[currToken].charValue() == ';') {
+				insert(std::string(1, tokens[currToken].charValue()));
                 currToken++;
                 return true;
             }
         }
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }
+	
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(error){
         std::cout << "Syntax Error on line " + std::to_string(tokens[currToken].getLineNumber()) + "Not good declaration";
@@ -434,19 +451,21 @@ bool Parser::parseDeclarationStatement(bool error) {
     return false;
 }
 
-//do we need this? It would be doing the same as the regualr function no?
 bool Parser::parseUserDefinedFunction(bool error) {//<DATATYPE_SPECIFIER> <IDENTIFIER><SEMICOLON> | <DATATYPE_SPECIFIER><IDENTIFIER_AND_IDENTIFIER_ARRAY_LIST> <SEMICOLON>
     int savedIdx = currToken;
     if(!parseIdentifier(false)){
         return false;
     }
     if(!parseLParenthesis()){
+		deleteRange(1);
         currToken--;
         return false;
     }
     if (!parseIdentifierAndIdentifierArrayList(false)){
+		deleteRange(currToken-savedIdx);
         currToken = savedIdx;
         if(!parseExpression(false)){
+			deleteRange(currToken-savedIdx);
             currToken = savedIdx;
             return false;
         }
@@ -458,6 +477,7 @@ bool Parser::parseUserDefinedFunction(bool error) {//<DATATYPE_SPECIFIER> <IDENT
         std::cout << "Expected User defined Function. failed on line " + std::to_string(tokens[currToken].getLineNumber());
         exit(2);
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     return false;
 }
@@ -467,20 +487,27 @@ bool Parser::parseGetcharFunction(bool error) {
     if(!(tokens[currToken].isString() && tokens[currToken].stringValue() == "getChar")){
         return false;
     }
+	insert(tokens[currToken].stringValue());
     currToken++;
     int savedIdx = currToken;
     if (tokens[currToken].charValue() == '(') {
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         if (parseIdentifierAndIdentifierArrayList(false) && tokens[currToken].charValue() == ')') {
+			insert(std::string(1, tokens[currToken].charValue()));
+			currToken++;
             return true;
         }
         else if (parseExpression(false) && tokens[currToken].charValue() == ')') {
+			insert(std::string(1, tokens[currToken].charValue()));
+			currToken++;
             return true;
         }
     } else if(error) {
         std::cout << "Expected getChar function. failed on line " + std::to_string(tokens[currToken].getLineNumber());
         exit(2);
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     return false;
 }
@@ -489,24 +516,27 @@ bool Parser::parseGetcharFunction(bool error) {
 //printf <L_PAREN> <SINGLE_QUOTED_STRING> <R_PAREN><SEMICOLON> |
 //printf <L_PAREN> <DOUBLE_QUOTED_STRING> <COMMA><IDENTIFIER_AND_IDENTIFIER_ARRAY_LIST> <R_PAREN> <SEMICOLON> |
 //printf<L_PAREN> <SINGLE_QUOTED_STRING> <COMMA><IDENTIFIER_AND_IDENTIFIER_ARRAY_LIST> <R_PAREN> <SEMICOLON>
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------Fixed by qivi
 bool Parser::parsePrintfStatement(bool error) {
     if(!(tokens[currToken].isString() && tokens[currToken].stringValue() == "printf")){
         return false;
     }
+	insert(tokens[currToken].stringValue());
     currToken++;
     int savedIdx = currToken;
     if (parseLParenthesis() && parseDoubleQuotedStr(false) && parseRParenthesis() && parseSemicolon()) {
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if (parseLParenthesis() && parseSingleQuotedStr(false) && parseRParenthesis() && parseSemicolon()) {
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if (parseLParenthesis() && parseDoubleQuotedStr(false) && parseComma() && parseIdentifierAndIdentifierArrayList(false) && parseRParenthesis() && parseSemicolon()) {
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if (parseLParenthesis() && parseSingleQuotedStr(false) && parseComma() && parseIdentifierAndIdentifierArrayList(false) && parseRParenthesis() && parseSemicolon()) {
         return true;
@@ -515,6 +545,7 @@ bool Parser::parsePrintfStatement(bool error) {
         std::cout << "Expected printf function. failed on line " + std::to_string(tokens[currToken].getLineNumber());
         exit(2);
     }
+	deleteRange(currToken-savedIdx+1);
     currToken = savedIdx - 1;
     return false;
 }
@@ -529,17 +560,22 @@ bool Parser::parseAssignmentStatement(bool error) {
         exit(2);
     }
     if ((parseIdentifierArrayList(false) || parseIdentifier(false)) && tokens[currToken].charValue() == '=') {
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         int savedIdx2 = currToken;
         if (parseSingleQuotedStr(false) && tokens[currToken].charValue() == ';') {
+			insert(std::string(1, tokens[currToken].charValue()));
             currToken++;
             return true;
         }
+		deleteRange(currToken-savedIdx2);
         currToken = savedIdx2;
         if (parseDoubleQuotedStr(false) && tokens[currToken].charValue() == ';') {
+			insert(std::string(1, tokens[currToken].charValue()));
             currToken++;
             return true;
         }
+		deleteRange(currToken-savedIdx2);
         currToken = savedIdx2;
 		int currLine = tokens[currToken].getLineNumber();
         if (parseExpression(false) ){
@@ -551,15 +587,25 @@ bool Parser::parseAssignmentStatement(bool error) {
 			while(tokens[currToken].getLineNumber() == currLine && tokens[currToken].charValue() != ';'){
 				//this is where we want to add every element to the cst,
 				//we currently just want it to move along 
+				if(tokens[currToken].isChar()){
+					insert(std::string(1, tokens[currToken].charValue()));
+				}else if (tokens[currToken].isString()) {
+					insert(tokens[currToken].stringValue());
+				}else if (tokens[currToken].isInt()){
+					insert(std::to_string(tokens[currToken].intValue()));
+				}
 				currToken++;
 			}
 			if(tokens[currToken].isChar() && tokens[currToken].charValue() == ';'){
+				insert(std::string(1, tokens[currToken].charValue()));
 				currToken++;
 				return true;
 			}
         }
+		deleteRange(savedIdx2-currToken);
         currToken = savedIdx2;
         if (parseUserDefinedFunction(false) && tokens[currToken].charValue() == ';'){
+			insert(std::string(1, tokens[currToken].charValue()));
             currToken++;
             return true;
         }
@@ -567,6 +613,7 @@ bool Parser::parseAssignmentStatement(bool error) {
             std::cout << "Expected string or expression. failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
+		deleteRange(savedIdx2-currToken);
         currToken = savedIdx2;
         return false;
     }
@@ -574,6 +621,7 @@ bool Parser::parseAssignmentStatement(bool error) {
         std::cout << "Expected assignment Statement. failed on line " + std::to_string(tokens[currToken].getLineNumber());
         exit(2);
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     return false;
 }
@@ -585,11 +633,15 @@ bool Parser::parseAssignmentStatement(bool error) {
 bool Parser::parseIterationStatement(bool error) {
     //cannot assume for or while were parsed
     if (tokens[currToken].stringValue() == "for") {
+		// this will make it so seeing ) or ; wont move the tree down a level
+		inForLoop = true;
+		insert(tokens[currToken].stringValue());
         currToken++;
         if (error && tokens[currToken].charValue() != '(') {
             std::cout << "Expected ( . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         if (error && !parseInitializationExpression(false)) {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
@@ -599,6 +651,7 @@ bool Parser::parseIterationStatement(bool error) {
             std::cout << "Expected Semi-Colon . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         if (error && !parseBooleanExpression(false)) {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
@@ -608,11 +661,14 @@ bool Parser::parseIterationStatement(bool error) {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         if(parseIdentifier(false)){
             if(tokens[currToken].isChar() && tokens[currToken].charValue() == '='){
+				insert(std::string(1, tokens[currToken].charValue()));
                 currToken++;
             }else{
+				deleteRange(1);
                 currToken--;
             }
         }
@@ -624,6 +680,7 @@ bool Parser::parseIterationStatement(bool error) {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         if (tokens[currToken].charValue() == '{') {
             parseBlockStatement(true);
@@ -631,15 +688,18 @@ bool Parser::parseIterationStatement(bool error) {
         else {
             parseStatement(true);
         }
+		inForLoop = false;
         return true;
 
     }
     else if (tokens[currToken].stringValue() == "while") {
         currToken++;
+		insert(tokens[currToken].stringValue());
         if (tokens[currToken].charValue() != '(') {
             std::cout << "Expected ( . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         if (!parseBooleanExpression(false)) {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
@@ -649,6 +709,7 @@ bool Parser::parseIterationStatement(bool error) {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         if (tokens[currToken].stringValue() != "{") {
             parseBlockStatement(false);
@@ -657,7 +718,6 @@ bool Parser::parseIterationStatement(bool error) {
             parseStatement(false);
         }
         return true;
-
     }
     else {
         std::cout << "Expected Return Statement. failed on line " + std::to_string(tokens[currToken].getLineNumber());
@@ -674,11 +734,13 @@ bool Parser::parseIterationStatement(bool error) {
 //if <L_PAREN> <BOOLEAN_EXPRESSION> <R_PAREN><STATEMENT> else <BLOCK_STATEMENT>
 bool Parser::parseSelectionStatement(bool error) {
     if (tokens[currToken].stringValue() == "if") {
+		insert(tokens[currToken].stringValue());
         currToken++;
         if (tokens[currToken].charValue() != '(') {
             std::cout << "Expected ( . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         if (!parseBooleanExpression(false)) {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
@@ -688,6 +750,7 @@ bool Parser::parseSelectionStatement(bool error) {
             std::cout << "Expected Bool Expression . Failed on line " + std::to_string(tokens[currToken].getLineNumber());
             exit(2);
         }
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         if (tokens[currToken].charValue() == '{') {
             parseBlockStatement(true);
@@ -696,6 +759,7 @@ bool Parser::parseSelectionStatement(bool error) {
             parseStatement(true);
         }
         if (tokens[currToken].stringValue() == "else") {
+			insert(tokens[currToken].stringValue());
             currToken++;
             if (tokens[currToken].charValue() == '{') {
                 parseBlockStatement(true);
@@ -719,10 +783,12 @@ bool Parser::parseExpression(bool error) {
     if(parseNumericalExpression(false)){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if (parseBooleanExpression(false)) {//would not work pls
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     return false;
 }
@@ -735,19 +801,23 @@ bool Parser::parseInitializationExpression(bool error) {
         std::cout << "Expected Init Expression. failed on line " + std::to_string(tokens[currToken].getLineNumber());
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     int savedIdx = currToken;
     if(parseSingleQuotedStr(false)){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseDoubleQuotedStr(false)){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseExpression(false)){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     return false;
 }
@@ -774,6 +844,7 @@ bool Parser::parseBooleanExpression(bool error) {
         }
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseIdentifier(false) && (parseBooleanEqual() || parseBooleanNotEqual() || parseLT() ||parseLTequal() || parseGT() || parseGTequal()) && parseDoubleQuotedStr(false)){
         if(parseBooleanOperator(error)){
@@ -781,6 +852,7 @@ bool Parser::parseBooleanExpression(bool error) {
         }
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseNumericalExpression(false)){
         if(parseBooleanEqual() || parseBooleanNotEqual() || parseLT() ||parseLTequal() || parseGT() || parseGTequal()){
@@ -793,12 +865,15 @@ bool Parser::parseBooleanExpression(bool error) {
                 std::cout << "Error in bool expression.";
                 exit(2);
             }
+			deleteRange(currToken-savedIdx);
             currToken = savedIdx;
             return false;
         }
+		deleteRange(currToken-savedIdx);
         currToken = savedIdx;
         return false;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseLParenthesis() && parseBooleanExpression(false) && parseRParenthesis()){
         if(parseBooleanOperator(error)){
@@ -806,6 +881,7 @@ bool Parser::parseBooleanExpression(bool error) {
         }
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseBooleanExpression(false) && parseBooleanOperator(false) && parseBooleanExpression(false)){
         if(parseBooleanOperator(error)){
@@ -813,6 +889,7 @@ bool Parser::parseBooleanExpression(bool error) {
         }
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseIdentifier(false) && parseBooleanOperator(false) && parseBooleanExpression(false)){
         if(parseBooleanOperator(error)){
@@ -820,6 +897,7 @@ bool Parser::parseBooleanExpression(bool error) {
         }
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseIdentifier(false)){
         if(parseBooleanOperator(error)){
@@ -827,6 +905,7 @@ bool Parser::parseBooleanExpression(bool error) {
         }
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     return false;
 }
@@ -839,7 +918,7 @@ bool Parser::parseBooleanExpression(bool error) {
 //<L_PAREN><NUMERICAL_OPERAND> <NUMERICAL_OPERATOR> <NUMERICAL_EXPRESSION><R_PAREN> |
 //<NUMERICAL_OPERAND> <NUMERICAL_OPERATOR> <L_PAREN><NUMERICAL_EXPRESSION> <R_PAREN>
 bool Parser::parseNumericalExpression(bool error) {
-    int saveIdx = currToken;
+    int savedIdx = currToken;
     if ( parseLParenthesis() ) {
         if( parseNumericalOperand(false) ) {
             if( parseRParenthesis() ) {
@@ -847,7 +926,8 @@ bool Parser::parseNumericalExpression(bool error) {
                     if(parseNumericalExpression(false)){
                         return true;
                     }
-                    currToken = saveIdx;
+					deleteRange(currToken-savedIdx);
+                    currToken = savedIdx;
                     return false;
                 }
                 return true;                                        //<L_PAREN> <NUMERICAL_OPERAND> <R_PAREN>
@@ -859,24 +939,30 @@ bool Parser::parseNumericalExpression(bool error) {
                             if(parseNumericalExpression(false)){
                                 return true;
                             }
-                            currToken = saveIdx;
+							deleteRange(currToken-savedIdx);
+                            currToken = savedIdx;
                             return false;
                         }
                         return true;                              //<L_PAREN> <NUMERICAL_OPERAND> <NUMERICAL_OPERATOR> <NUMERICAL_EXPRESSION> <R_PAREN>
                     }
-                    currToken = saveIdx;
+					deleteRange(currToken-savedIdx);
+					currToken = savedIdx;
                     return false;
                 }
-                currToken = saveIdx;
+				deleteRange(currToken-savedIdx);
+                currToken = savedIdx;
                 return false;
             }
-            currToken = saveIdx;
+			deleteRange(currToken-savedIdx);
+            currToken = savedIdx;
             return false;
         }
-        currToken = saveIdx;
+		deleteRange(currToken-savedIdx);
+        currToken = savedIdx;
         return false;
     }
-    currToken = saveIdx;
+	deleteRange(currToken-savedIdx);
+    currToken = savedIdx;
     if(parseNumericalOperand(false) ) {
         if( parseNumericalOperator(false) ) {
             if( parseNumericalExpression(false) ) {
@@ -884,27 +970,32 @@ bool Parser::parseNumericalExpression(bool error) {
                     if(parseNumericalExpression(false)){
                         return true;
                     }
-                    currToken = saveIdx;
+					deleteRange(currToken-savedIdx);
+                    currToken = savedIdx;
                     return false;
                 }
                 return true;                                        //<NUMERICAL_OPERAND> <NUMERICAL_OPERATOR> <NUMERICAL_EXPRESSION>
             }
-            currToken = saveIdx;
+			deleteRange(currToken-savedIdx);
+            currToken = savedIdx;
             return false;
         }
         return true;                                                //<NUMERICAL_OPERAND>
     }
-    currToken = saveIdx;
+	deleteRange(currToken-savedIdx);
+    currToken = savedIdx;
     return false;
 }
 
 //<LT> | <LT_EQUAL> | <GT> | <GT_EQUAL> |<BOOLEAN_EQUAL> | <BOOLEAN_NOT_EQUAL>
 bool Parser::parseRelationalExpression(bool error) {
     if (tokens[currToken].isChar() && (tokens[currToken].charValue() == '<' || tokens[currToken].charValue() == '>')) {
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
     if (tokens[currToken].isString() && (tokens[currToken].stringValue() == "<=" || tokens[currToken].stringValue() == ">=" || tokens[currToken].stringValue() == "==" || tokens[currToken].stringValue() == "!=")) {
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }
@@ -949,6 +1040,7 @@ bool Parser::parseNumericalOperator(bool error) {
 //<SINGLE_QUOTE> <ESCAPED_CHARACTER> <SINGLE_QUOTE> | <DOUBLE_QUOTE><CHARACTER> <DOUBLE_QUOTE> | <DOUBLE_QUOTE> <ESCAPED_CHARACTER>< DOUBLE_QUOTE
 bool Parser::parseNumericalOperand(bool error) {
     if(tokens[currToken].isInt()){
+		insert(std::to_string(tokens[currToken].intValue()));
         currToken++;
         return true;
     }
@@ -956,30 +1048,37 @@ bool Parser::parseNumericalOperand(bool error) {
     if(parseGetcharFunction(false)){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseUserDefinedFunction(false)){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseSingleQuote() && parseCharacter() && parseSingleQuote()){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseSingleQuote() && parseEscapeCharacter() && parseSingleQuote()){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseDoubleQuote() && parseCharacter() && parseDoubleQuote()){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseDoubleQuote() && parseCharacter() && parseDoubleQuote()){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseDoubleQuote() && parseEscapeCharacter() && parseDoubleQuote()){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseIdentifier(false)){
         return true;
@@ -990,6 +1089,7 @@ bool Parser::parseNumericalOperand(bool error) {
 //char | bool | int
 bool Parser::parseDatatypeSpecifier(bool error) {
     if(tokens[currToken].isString() && (tokens[currToken].stringValue() == "char" || tokens[currToken].stringValue() == "bool" || tokens[currToken].stringValue() == "int")){
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }
@@ -1005,6 +1105,7 @@ bool Parser::parseIdentifierAndIdentifierArrayList(bool error) {
         }
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseIdentifierList(false)){
         if(parseIdentifierArrayList(false)){
@@ -1012,38 +1113,45 @@ bool Parser::parseIdentifierAndIdentifierArrayList(bool error) {
         }
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     return false;
 }
 
 //<IDENTIFIER> <L_BRACKET> <WHOLE_NUMBER><R_BRACKET> | <IDENTIFIER> <L_BRACKET> <WHOLE_NUMBER> <R_BRACKET><COMMA> <IDENTIFIER_ARRAY_LIST>
 bool Parser::parseIdentifierArrayList(bool error) {
-    int saveIdx = currToken;
+    int savedIdx = currToken;
     if( parseIdentifier(false) ) {
         if( parseLBracket() ) {
             if( parseWholeNum(false) ) {
                 if( parseRBracket() ) {
-                    saveIdx = currToken;
+                    savedIdx = currToken;
                     if( parseComma() ) {
                         if( parseIdentifierArrayList(false) ) {
                             return true;
                         }
-                        currToken = saveIdx;
+						deleteRange(currToken-savedIdx);
+                        currToken = savedIdx;
                         return false;
                     }
-                    currToken = saveIdx;
+					deleteRange(currToken-savedIdx);
+                    currToken = savedIdx;
                     return true;
                 }
-                currToken = saveIdx;
+				deleteRange(currToken-savedIdx);
+                currToken = savedIdx;
                 return false;
             }
-            currToken = saveIdx;
+			deleteRange(currToken-savedIdx);
+            currToken = savedIdx;
             return false;
         }
-        currToken = saveIdx;
+		deleteRange(currToken-savedIdx);
+        currToken = savedIdx;
         return false;
     }
-    currToken = saveIdx;
+	deleteRange(currToken-savedIdx);
+    currToken = savedIdx;
     return false;
 }
 
@@ -1057,10 +1165,12 @@ bool Parser::parseIdentifierList(bool error) {
     if(parseIdentifier(false) && parseComma() && parseIdentifierList(false)){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     if(parseIdentifier(false)){
         return true;
     }
+	deleteRange(currToken-savedIdx);
     currToken = savedIdx;
     return false;
 }
@@ -1073,10 +1183,12 @@ bool Parser::parseIdentifier(bool error) {
                 return false;
             }
         }
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }else if(tokens[currToken].isChar()){
         if(isalnum(tokens[currToken].charValue()) || tokens[currToken].charValue() == '_'){
+			insert(std::string(1, tokens[currToken].charValue()));
             currToken++;
             return true;
         }
@@ -1087,6 +1199,7 @@ bool Parser::parseIdentifier(bool error) {
 //<WHOLE_NUMBER> | <PLUS> <WHOLE_NUMBER> | <MINUS><WHOLE_NUMBER>
 bool Parser::parseInteger(bool error) {
     if(tokens[currToken].isInt()){
+		insert(std::to_string(tokens[currToken].intValue()));
         currToken++;
         return true;
     }
@@ -1096,6 +1209,7 @@ bool Parser::parseInteger(bool error) {
 //<DIGIT> | <DIGIT> <WHOLE_NUMBER>
 bool Parser::parseWholeNum(bool error) {
     if(tokens[currToken].isInt()){
+		insert(std::to_string(tokens[currToken].intValue()));
         currToken++;
         return true;
     }
@@ -1108,15 +1222,18 @@ bool Parser::parseSingleQuotedStr(bool error) {
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '\'')){
         return false;
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     parseString();
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '\'')){
+		deleteRange(2);
         currToken -= 2;
         return false;
     }else if(error){
         std::cout << "error in single string";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     return true;
 }
@@ -1126,31 +1243,37 @@ bool Parser::parseDoubleQuotedStr(bool error) {
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '"')){
         return false;
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     parseString();
     if(currToken <= tokens.size() && !(tokens[currToken].isChar() && tokens[currToken].charValue() == '"')){
+		deleteRange(2);
         currToken -= 2;
         return false;
     }else if(error){
         std::cout << "error in double string";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     return true;
 }
 
 //<CHARACTER | <ESCAPED_CHARACTER> | <CHARACTER> <STRING> |<ESCAPED_CHARACTER> <STRING>
 bool Parser::parseString() {
+	insert(tokens[currToken].stringValue());
     currToken++;
     return true;
 }
 
 bool Parser::parseLetterDigitUnderscore(bool error) {
     if(tokens[currToken].isInt()){
+		insert(std::to_string(tokens[currToken].intValue()));
         currToken++;
         return true;
     }
     if(!tokens[currToken].isChar()){
+		insert(std::string(1, tokens[currToken].charValue()));
         return false;
     }
     if(tokens[currToken].isChar()){
@@ -1158,12 +1281,14 @@ bool Parser::parseLetterDigitUnderscore(bool error) {
             return false;
         }
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     return true;
 }
 
 bool Parser::parseBooleanFalse() {
     if(tokens[currToken].isString() && tokens[currToken].stringValue() == "FALSE"){
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }
@@ -1172,6 +1297,7 @@ bool Parser::parseBooleanFalse() {
 
 bool Parser::parseBooleanTrue() {
     if(tokens[currToken].isString() && tokens[currToken].stringValue() == "TRUE"){
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }
@@ -1180,6 +1306,7 @@ bool Parser::parseBooleanTrue() {
 
 bool Parser::parseBooleanNotEqual() {
     if(tokens[currToken].isString() && tokens[currToken].stringValue() == "!="){
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }
@@ -1188,6 +1315,7 @@ bool Parser::parseBooleanNotEqual() {
 
 bool Parser::parseBooleanEqual() {
     if(tokens[currToken].isString() && tokens[currToken].stringValue() == "=="){
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }
@@ -1196,6 +1324,7 @@ bool Parser::parseBooleanEqual() {
 
 bool Parser::parseBooleanNot() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '!'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1204,6 +1333,7 @@ bool Parser::parseBooleanNot() {
 
 bool Parser::parseBooleanOr() {
     if(tokens[currToken].isString() && tokens[currToken].stringValue() == "||"){
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }
@@ -1212,6 +1342,7 @@ bool Parser::parseBooleanOr() {
 
 bool Parser::parseBooleanAnd() {
     if(tokens[currToken].isString() && tokens[currToken].stringValue() == "&&"){
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }
@@ -1220,6 +1351,7 @@ bool Parser::parseBooleanAnd() {
 
 bool Parser::parseGTequal() {
     if(tokens[currToken].isString() && tokens[currToken].stringValue() == ">="){
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }
@@ -1228,6 +1360,7 @@ bool Parser::parseGTequal() {
 
 bool Parser::parseLTequal() {
     if(tokens[currToken].isString() && tokens[currToken].stringValue() == "<="){
+		insert(tokens[currToken].stringValue());
         currToken++;
         return true;
     }
@@ -1236,6 +1369,7 @@ bool Parser::parseLTequal() {
 
 bool Parser::parseGT() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '>'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1244,6 +1378,7 @@ bool Parser::parseGT() {
 
 bool Parser::parseLT() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '<'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1252,6 +1387,7 @@ bool Parser::parseLT() {
 
 bool Parser::parseCaret() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '^'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1260,6 +1396,7 @@ bool Parser::parseCaret() {
 
 bool Parser::parseModulo() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '%'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1268,6 +1405,7 @@ bool Parser::parseModulo() {
 
 bool Parser::parseDivide() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '/'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1276,6 +1414,7 @@ bool Parser::parseDivide() {
 
 bool Parser::parseAsterisk() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '*'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1284,6 +1423,7 @@ bool Parser::parseAsterisk() {
 
 bool Parser::parseMinus() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '-'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1292,6 +1432,7 @@ bool Parser::parseMinus() {
 
 bool Parser::parsePlus() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '+'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1300,6 +1441,7 @@ bool Parser::parsePlus() {
 
 bool Parser::parseAssignmentOperator() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '='){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1308,6 +1450,7 @@ bool Parser::parseAssignmentOperator() {
 
 bool Parser::parseComma() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == ','){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1316,6 +1459,7 @@ bool Parser::parseComma() {
 
 bool Parser::parseSemicolon() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == ';'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1324,6 +1468,7 @@ bool Parser::parseSemicolon() {
 
 bool Parser::parseSingleQuote() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '\''){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1332,6 +1477,7 @@ bool Parser::parseSingleQuote() {
 
 bool Parser::parseDoubleQuote() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '"'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1340,6 +1486,7 @@ bool Parser::parseDoubleQuote() {
 
 bool Parser::parseRBrace() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '}'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1348,6 +1495,7 @@ bool Parser::parseRBrace() {
 
 bool Parser::parseLBrace() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '{'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1356,6 +1504,7 @@ bool Parser::parseLBrace() {
 
 bool Parser::parseRParenthesis() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == ')'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1364,6 +1513,7 @@ bool Parser::parseRParenthesis() {
 
 bool Parser::parseLParenthesis() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '('){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1372,6 +1522,7 @@ bool Parser::parseLParenthesis() {
 
 bool Parser::parseRBracket() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == ']'){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1380,6 +1531,7 @@ bool Parser::parseRBracket() {
 
 bool Parser::parseLBracket() {
     if(tokens[currToken].isChar() && tokens[currToken].charValue() == '['){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1391,18 +1543,21 @@ bool Parser::parseBlockStatement(bool error) {
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected {";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     parseCompoundStatement(true);//block statement-----------------------------------------------------------------------------------------------------
     if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '}')){
         std::cout << "Error on line " + std::to_string(tokens[currToken].getLineNumber()) + ": Expected }";
         exit(2);
     }
+	insert(std::string(1, tokens[currToken].charValue()));
     currToken++;
     return true;
 }
 
 bool Parser::parseEscapeCharacter() {
     if(tokens[currToken].isChar()){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }
@@ -1411,6 +1566,7 @@ bool Parser::parseEscapeCharacter() {
 
 bool Parser::parseCharacter() {
     if(tokens[currToken].isChar()){
+		insert(std::string(1, tokens[currToken].charValue()));
         currToken++;
         return true;
     }

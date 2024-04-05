@@ -9,6 +9,7 @@ int main(int argc, char* argv[]) {
     Parser parser(argv[1]);
     parser.parseFile();
 //    parser.tokenizer.printUncommentedFile();
-    std::cout << parser.parseProgram();
+    parser.parseProgram();
+	parser.printTree();
 //    parser.print();
 }

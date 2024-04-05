@@ -5,30 +5,13 @@
 #ifndef TOKENIZER_PARSER_HPP
 #define TOKENIZER_PARSER_HPP
 #include "Tokenizer.hpp"
+#include <string>
 #include <vector>
-
-class Node {
-public:
-    Node(std::string inputValue) : value(inputValue), leftChild(nullptr), rightChild(nullptr) {};
-    Node(char inputValue) : leftChild(nullptr), rightChild(nullptr) {
-        value = std::to_string(inputValue);
-    };
-    Node* getLeftChild() {return leftChild;};
-    Node* getRightChild() {return rightChild;};
-    void setLeftChild(Node* inputLeftChild) {leftChild = inputLeftChild;};
-    void setRightChild(Node* inputRightChild) {rightChild = inputRightChild;};
-
-private:
-    Node* leftChild;
-    Node* rightChild;
-    std::string value;
-};
+#include "cst.hpp"
 
 class Parser {
 public:
-    Parser(const std::string fileName): tokenizer{Tokenizer(fileName)}, CST(nullptr) {
-        startNode = new Node("start");
-        currNode = startNode;
+    Parser(const std::string fileName): tokenizer{Tokenizer(fileName)} {
     };
     void parseFile();
     void parseToken(Token token);
@@ -108,14 +91,62 @@ public:
     bool parseEscapeCharacter();
     bool parseCharacter();
 
+	// switch the direction we are going, if and only if we get to a char that dictates such
+	void switchDir(){ 
+		if(inForLoop){
+			nextDir = "right";
+			return;
+		}
+		if(/*tokens[currToken].isChar() &&*/ 
+				(
+				 tokens[currToken].charValue() == ';' ||
+				 tokens[currToken].stringValue() == ";" ||
+				 tokens[currToken].charValue() == '}' ||
+				 tokens[currToken].charValue() == '{' || 
+				 (tokens[currToken].charValue() == ')' && 
+				  	tokens[currToken+1].isChar() && (tokens[currToken+1].charValue() != ';')
+				 )
+				)
+		  )
+		{
+			nextDir = "down";
 
-//private:
+		}else{
+			nextDir = "right";
+		}
+	}
+
+	//cst insert wrapper that also handles the switching of the direction
+	void insert(std::string value){
+		CST.insert(value, nextDir);
+		switchDir();
+	}
+
+	void deleteRange(int howMany){
+		CST.deleteRange(howMany);
+
+		// because we update the currToken only after we call the delete function
+		// we need the switchDir() to think that it's a few tokens back
+		tempCurrToken = currToken;
+		currToken = currToken - howMany;
+		//switchDir();
+		currToken = tempCurrToken;
+	}
+
+	void printTree(){
+		std::cout << "printing\n";
+		CST.print();
+	}
+
+	//should probably be private
+
+	int tempCurrToken;
     std::vector<Token> tokens;
     Tokenizer tokenizer;
     int currToken = 0;
-    Node* CST;
-    Node* currNode;
-    Node* startNode;
+    cst CST;
+	std::string nextDir = "right";
+	bool inForLoop = false;
 };
 
 
