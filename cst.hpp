@@ -5,13 +5,14 @@ struct node {
 		rightChild = nullptr;
 		leftChild = nullptr;
 	}
-	node(std::string val){
+	node(std::string val, bool direction){
 		value = val;
+        nextChildRight = direction;
 		rightChild = nullptr;
 		leftChild = nullptr;
 	}
 
-
+    bool nextChildRight;
 	std::string value;
 	node* rightChild;
 	node* leftChild;
@@ -25,7 +26,7 @@ public:
 		first = nullptr;
 		last = nullptr;
 	}
-	bool insert(std::string val, std::string direction);
+	bool insert(std::string val, bool direction);
 	bool deleteLast();
 	bool deleteRange(int howManyFromEnd);
 	void print();

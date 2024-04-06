@@ -2,9 +2,9 @@
 #include <string>
 #include <iostream>
 
-bool cst::insert(std::string val, std::string direction){
+bool cst::insert(std::string val, bool direction){
 	std::cout << "inserting " << val << " size " << size << std::endl;
-	node* newNode = new node(val);
+	node* newNode = new node(val, direction);
 	if(last == nullptr && first == nullptr){
 		last = newNode;
 		first = newNode;
@@ -12,12 +12,12 @@ bool cst::insert(std::string val, std::string direction){
 		return true;
 	}
 	if(first != nullptr){
-		if(direction == "right"){
+		if(last->nextChildRight){
 			last->rightChild = newNode;
 			last = newNode;
 			size++;
 			return true;
-		}else if (direction == "down") {
+		}else if (!last->nextChildRight) {
 			last->leftChild = newNode;
 			last = newNode;
 			size++;
@@ -82,10 +82,10 @@ void cst::print(){
 		}
 		std::cout << temp->value;
 		if(temp->rightChild != nullptr){
-			std::cout << " → ";
+			std::cout << " -> ";
 			temp = temp->rightChild;
 		}else if(temp->leftChild != nullptr){
-			std::cout << " ↓ \n";
+			std::cout << " v \n";
 			temp = temp->leftChild;
 		}else{
 			std::cout << "\n";

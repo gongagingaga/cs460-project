@@ -91,35 +91,9 @@ public:
     bool parseEscapeCharacter();
     bool parseCharacter();
 
-	// switch the direction we are going, if and only if we get to a char that dictates such
-	void switchDir(){ 
-		if(inForLoop){
-			nextDir = "right";
-			return;
-		}
-		if(/*tokens[currToken].isChar() &&*/ 
-				(
-				 tokens[currToken].charValue() == ';' ||
-				 tokens[currToken].stringValue() == ";" ||
-				 tokens[currToken].charValue() == '}' ||
-				 tokens[currToken].charValue() == '{' || 
-				 (tokens[currToken].charValue() == ')' && 
-				  	tokens[currToken+1].isChar() && (tokens[currToken+1].charValue() != ';')
-				 )
-				)
-		  )
-		{
-			nextDir = "down";
-
-		}else{
-			nextDir = "right";
-		}
-	}
-
 	//cst insert wrapper that also handles the switching of the direction
-	void insert(std::string value){
+	void insert(std::string value, bool nextDir){
 		CST.insert(value, nextDir);
-		switchDir();
 	}
 
 	void deleteRange(int howMany){
