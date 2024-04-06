@@ -3,7 +3,6 @@
 #include <iostream>
 
 bool cst::insert(std::string val, bool direction){
-	std::cout << "inserting " << val << " size " << size << std::endl;
 	node* newNode = new node(val, direction);
 	if(last == nullptr && first == nullptr){
 		last = newNode;
@@ -61,7 +60,6 @@ bool cst::deleteLast(){
 
 
 bool cst::deleteRange(int range){
-	//std::cout << "deleting " << range << " things\n";
 	for(int i = 0; i < range; ++i){
 		deleteLast();
 	}
@@ -70,7 +68,6 @@ bool cst::deleteRange(int range){
 
 void cst::print(){
 	node* temp = first;
-	std::cout << "size?? " << size << std::endl;
 	for(int i = 0; i < size; ++i){
 		if(temp == nullptr){
 			std::cout << "list empty!! ahaahahah\n";

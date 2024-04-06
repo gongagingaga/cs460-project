@@ -108,7 +108,7 @@ public:
 	}
 
 	void printTree(){
-		std::cout << "printing\n";
+		std::cout << "Printing:\n";
 		CST.print();
 	}
 

@@ -1231,8 +1231,15 @@ bool Parser::parseSingleQuotedStr(bool error) {
     }
 	insert(std::string(1, tokens[currToken].charValue()), true);
     currToken++;
-    parseString();
-    if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '\'')){
+   // parseString(); it must be a char so it will be one char 
+   	if(!tokens[currToken].isString()){
+		insert(std::string(1, tokens[currToken].charValue()), true);
+		currToken++;
+	} else{
+		parseString();
+		
+	}
+	if(!(tokens[currToken].isChar() && tokens[currToken].charValue() == '\'')){
 		deleteRange(2);
         currToken -= 2;
         return false;
