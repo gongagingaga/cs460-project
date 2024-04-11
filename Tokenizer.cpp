@@ -1,241 +1,462 @@
 #include "Tokenizer.hpp"
+#include <iostream>
 
+Tokenizer::Tokenizer(const std::string &inputFile): inputFileName{inputFile} {}
 
-void Tokenizer::printTokens(std::vector<Token> tokens){
-    for(auto token : tokens){
-        std::cout << "[ " << token.toString() << " ]\n";
+Token Tokenizer::getToken() {
+    Token newToken;
+
+    if( currChar >= uncommentedFile.length() ) {
+        newToken.bnfValue() = EOF;
+        newToken.isEOF() = true;
+        newToken.setLineNumber(currLine);
+        return newToken;
     }
+
+    char c = uncommentedFile[currChar];
+
+    if(c == '\n'){
+        currLine++;
+        currChar++;
+        return getToken();
+    }
+    if(c == '('){
+        newToken.bnfValue() = L_PAREN;
+        newToken.charValue() = '(';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == ')') {
+        newToken.bnfValue() = R_PAREN;
+        newToken.charValue() = ')';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '{') {
+        newToken.bnfValue() = L_BRACE;
+        newToken.charValue() = '{';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '}') {
+        newToken.bnfValue() = R_BRACE;
+        newToken.charValue() = '}';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == ';') {
+        newToken.bnfValue() = SEMICOLON;
+        newToken.charValue() = ';';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '[') {
+        newToken.bnfValue() = L_BRACKET;
+        newToken.charValue() = '[';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == ']') {
+        newToken.bnfValue() = R_BRACKET;
+        newToken.charValue() = ']';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == ',') {
+        newToken.bnfValue() = COMMA;
+        newToken.charValue() = ',';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '+') {
+        if(isdigit(uncommentedFile[currChar + 1])) {
+            bool isFloat = false;
+            std::string value = "";
+            currChar++;
+            c = uncommentedFile[currChar];
+            while(c == '.' || isdigit(c)){
+                if(c == '.' && !isFloat){
+                    isFloat = true;
+                }else if(c == '.'){
+                    std::cout << "Error with float and int" << std::endl;
+                    exit(2);
+                }
+                value += c;
+                currChar++;
+                c = uncommentedFile[currChar];
+            }
+            newToken.bnfValue() = INTEGER;
+            newToken.intValue() = std::stoi(value);
+            newToken.isInt() = true;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }
+        newToken.bnfValue() = PLUS;
+        newToken.charValue() = '+';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '*') {
+        newToken.bnfValue() = ASTERISK;
+        newToken.charValue() = '*';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '/') {
+        newToken.bnfValue() = DIVIDE;
+        newToken.charValue() = '/';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '%') {
+        newToken.bnfValue() = MODULO;
+        newToken.charValue() = '%';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '^') {
+        newToken.bnfValue() = CARET;
+        newToken.charValue() = '^';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '"') {
+        newToken.bnfValue() = DOUBLE_QUOTE;
+        newToken.charValue() = '"';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+
+    if(c == '\'') {
+        newToken.bnfValue() = SINGLE_QUOTE;
+        newToken.charValue() = '\'';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '=') {
+        if(uncommentedFile[currChar + 1] == '='){
+            newToken.bnfValue() = EQUALITY_EXPRESSION;
+            newToken.stringValue() = "==";
+            newToken.isString() = true;
+            currChar += 2;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }else {
+            newToken.bnfValue() = ASSIGNMENT_OPERATOR;
+            newToken.charValue() = '=';
+            newToken.isChar() = true;
+            currChar++;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }
+    }
+    if(c == '<') {
+        if(uncommentedFile[currChar + 1] == '='){
+            newToken.bnfValue() = LT_EQUAL;
+            newToken.stringValue() = "<=";
+            newToken.isString() = true;
+            currChar += 2;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }else{
+            newToken.bnfValue() = LT;
+            newToken.charValue() = '<';
+            newToken.isChar() = true;
+            currChar++;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }
+    }
+    if(c == '>') {
+        if(uncommentedFile[currChar + 1] == '='){
+            newToken.bnfValue() = GT_EQUAL;
+            newToken.stringValue() = ">=";
+            newToken.isString() = true;
+            currChar += 2;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }else{
+            newToken.bnfValue() = GT;
+            newToken.charValue() = '>';
+            newToken.isChar() = true;
+            currChar++;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }
+    }
+    if(c == '|') {
+        if(uncommentedFile[currChar + 1] == '|'){
+            newToken.bnfValue() = BOOLEAN_OR;
+            newToken.stringValue() = "||";
+            newToken.isString();
+            currChar += 2;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }else {
+            newToken.bnfValue() = UNKNOWN;
+            currChar++;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }
+    }
+    if(c == '&') {
+        if(uncommentedFile[currChar + 1] == '&'){
+            newToken.bnfValue() = BOOLEAN_AND;
+            newToken.stringValue() = "&&";
+            newToken.isString() = true;
+            currChar += 2;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }
+        newToken.bnfValue() = UNKNOWN;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '!') {
+        if (uncommentedFile[currChar + 1] == '=') {
+            newToken.bnfValue() = BOOLEAN_NOT_EQUAL;
+            newToken.stringValue() = "!=";
+            newToken.isString() = true;
+            currChar += 2;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }
+        newToken.bnfValue() = BOOLEAN_NOT;
+        newToken.charValue() = '!';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(isalpha(c)){
+        std::string value = "";
+        value += c;
+        currChar++;
+        c = uncommentedFile[currChar];
+        while(isalpha(c) || c == '_' || isdigit(c)){
+            value += c;
+            currChar++;
+            c = uncommentedFile[currChar];
+        }
+        newToken.bnfValue() = IDENTIFIER;
+        if(value.length() == 1){
+            newToken.isChar() = true;
+            newToken.charValue() = value[0];
+        }else{
+            newToken.isString() = true;
+            newToken.stringValue() = value;
+        }
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(isdigit(c)){
+        bool isFloat = false;
+        std::string value = "";
+        value += c;
+        currChar++;
+        c = uncommentedFile[currChar];
+        while(c == '.' || isdigit(c)){
+            if(c == '.' && !isFloat){
+                isFloat = true;
+            }else if(c == '.'){
+                std::cout << "Error with float and int" << std::endl;
+                exit(2);
+            }
+            value += c;
+            currChar++;
+            c = uncommentedFile[currChar];
+        }
+        newToken.bnfValue() = INTEGER;
+        newToken.intValue() = std::stoi(value);
+        newToken.isInt() = true;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    if(c == '-') {
+        if(isdigit(uncommentedFile[currChar + 1])) {
+            bool isFloat = false;
+            std::string value = "";
+            value += c;
+            currChar++;
+            c = uncommentedFile[currChar];
+            while(c == '.' || isdigit(c)){
+                if(c == '.' && !isFloat){
+                    isFloat = true;
+                }else if(c == '.'){
+                    std::cout << "Error with float and int" << std::endl;
+                    exit(2);
+                }
+                value += c;
+                currChar++;
+                c = uncommentedFile[currChar];
+            }
+            newToken.bnfValue() = INTEGER;
+            newToken.intValue() = std::stoi(value);
+            newToken.isInt() = true;
+            newToken.setLineNumber(currLine);
+            return newToken;
+        }
+        newToken.bnfValue() = MINUS;
+        newToken.charValue() = '-';
+        newToken.isChar() = true;
+        currChar++;
+        newToken.setLineNumber(currLine);
+        return newToken;
+    }
+    currChar++;
+    return getToken();
+
 }
 
-std::vector<Token> Tokenizer::tokenize(std::string input){
-    std::vector<Token> tokens;
-    std::string dqs;
-    for ( long unsigned int curr = 0; curr < input.size(); curr++){
-        Token newToken;
-        if (input.at(curr) == ' ' || input.at(curr) == '\n'){
-            continue;
+Token Tokenizer::getStringToken(char terminator) {
+    std::string value = "";
+    char c = uncommentedFile[currChar];
+    while(c != terminator){
+        if(c == '\\'){
+            value += c;
+            currChar++;
+            c = uncommentedFile[currChar];
         }
-        switch (input[curr]) {
+        value += c;
+        currChar++;
+        if(currChar == uncommentedFile.length()){
+            std::cout << "Syntax Error on line " + std::to_string(currLine) + ": Unterminated double quote string.";
+            exit(2);
+        }
+        c = uncommentedFile[currChar];
+    }
+    Token newToken;
+    if(value.length() == 1){
+        newToken.bnfValue() = CHARACTER;
+        newToken.isChar() = true;
+        newToken.charValue() = value[0];
+    }else{
+        newToken.bnfValue() = STRING;
+        newToken.isString() = true;
+        newToken.stringValue() = value;
+    }
+    newToken.setLineNumber(currLine);
+    return newToken;
+}
 
-            case '(':
-                newToken.bnfValue() = L_PAREN;
-                newToken.character() = '(';
-                tokens.push_back(newToken);
-                break;
-            case ')':
-                newToken.bnfValue() = R_PAREN;
-                newToken.character() = ')';
-                tokens.push_back(newToken);
-                break;
-            case '{':
-                newToken.bnfValue() = L_BRACE;
-                newToken.character() = '{';
-                tokens.push_back(newToken);
-                break;
-            case '}':
-                newToken.bnfValue() = R_BRACE;
-                newToken.character() = '}';
-                tokens.push_back(newToken);
-                break;
-            case ';':
-                newToken.bnfValue() = SEMICOLON;
-                newToken.character() = ';';
-                tokens.push_back(newToken);
-                break;
-            case '[':
-                newToken.bnfValue() = L_BRACKET;
-                newToken.character() = '[';
-                tokens.push_back(newToken);
-                break;
-            case ']':
-                newToken.bnfValue() = R_BRACKET;
-                newToken.character() = ']';
-                tokens.push_back(newToken);
-                break;
-            case ',':
-                newToken.bnfValue() = COMMA;
-                newToken.character() = ',';
-                tokens.push_back(newToken);
-                break;
-            case '+':
-                newToken.bnfValue() = PLUS;
-                newToken.character() = '+';
-                tokens.push_back(newToken);
-                break;
-            case '-':
-                newToken.bnfValue() = MINUS;
-                newToken.character() = '-';
-                tokens.push_back(newToken);
-                break;
-            case '*':
-                newToken.bnfValue() = ASTERISK;
-                newToken.character() = '*';
-                tokens.push_back(newToken);
-                break;
-            case '/':
-                newToken.bnfValue() = DIVIDE;
-                newToken.character() = '/';
-                tokens.push_back(newToken);
-                break;
-            case '%':
-                newToken.bnfValue() = MODULO;
-                newToken.character() = '%';
-                tokens.push_back(newToken);
-                break;
-            case '^':
-                newToken.bnfValue() = CARET;
-                newToken.character() = '^';
-                tokens.push_back(newToken);
-                break;
-            case '"':
-                dqs += '"';
-                curr++;
-                while(input[curr] != '"' && curr != input.size() && input[curr] != '\n'){
-                    dqs += input[curr];
-                    curr++;
-                }
+void Tokenizer::uncommentFile() {
+    // open file
+    std::ifstream inFile;
+    inFile.open(inputFileName);
+    if(!inFile.is_open()){
+        std::cout << "File cannot be opened." << std::endl;
+        exit(1);
+    }
 
-                dqs += '"';
-
-                // unterminated string
-                if(curr == input.size() ||  input[curr] == '\n') exit(5);
-
-                newToken.bnfValue() = DOUBLE_QUOTED_STRING;
-                newToken.quotedString() = dqs;
-                tokens.push_back(newToken);
-                dqs = "";
-                break;
-
-            case '\'':
-                dqs += '\'';
-                curr++;
-                while(input[curr] != '\'' && curr != input.size() && input[curr] != '\n'){
-                    dqs += input[curr];
-                    curr++;
-                }
-
-                dqs += '\'';
-
-                // unterminated string
-                if(curr == input.size() || input[curr] == '\n') exit(5);
-
-                newToken.bnfValue() = SINGLE_QUOTED_STRING;
-                newToken.quotedString() = dqs;
-                tokens.push_back(newToken);
-                dqs = "";
-                break;
-            case '=':
-                if(input[curr+1] == '='){
-                    newToken.bnfValue() = EQUALITY_EXPRESSION;
-                    newToken.booleanOperator() = "==";
-                    tokens.push_back(newToken);
-                    curr++;
-                    break;
-                }
-                newToken.bnfValue() = ASSIGNMENT_OPERATOR;
-                newToken.character() = '=';
-                tokens.push_back(newToken);
-                break;
-            case '<':
-                if(input[curr+1] == '='){
-                    newToken.bnfValue() = LT_EQUAL;
-                    newToken.booleanOperator() = "<=";
-                    tokens.push_back(newToken);
-                    curr++;
-                    break;
-                }
-                newToken.bnfValue() = LT;
-                newToken.booleanOperator() = "<";
-                break;
-            case '>':
-                if(input[curr+1] == '='){
-                    newToken.bnfValue() = GT_EQUAL;
-                    newToken.booleanOperator() = ">=";
-                    tokens.push_back(newToken);
-                    curr++;
-                    break;
-                }
-                newToken.bnfValue() = GT;
-                newToken.booleanOperator() = ">";
-                tokens.push_back(newToken);
-                break;
-
-            case '|':
-                if(input[curr+1] == '|'){
-                    newToken.bnfValue() = BOOLEAN_OR;
-                    newToken.booleanOperator() = "||";
-                    tokens.push_back(newToken);
-                    curr++;
-                    break;
-                }
-                newToken.bnfValue() = UNKNOWN;
-                tokens.push_back(newToken);
-                break;
-
-            case '&':
-                if(input[curr+1] == '&'){
-                    newToken.bnfValue() = BOOLEAN_AND;
-                    newToken.booleanOperator() = "&&";
-                    tokens.push_back(newToken);
-                    curr++;
-                    break;
-                }
-                //maybe i should actually return an error here, check in with other about this
-                newToken.bnfValue() = UNKNOWN;
-                tokens.push_back(newToken); // both this and | dont have a meaning on their own i think(?)
-                break;
-
-            case '!':
-                if(input[curr+1] == '='){
-                    newToken.bnfValue() = BOOLEAN_NOT_EQUAL;
-                    newToken.booleanOperator() = "!=";
-                    tokens.push_back(newToken);
-                    curr++;
-                    break;
-                }
-                newToken.bnfValue() = BOOLEAN_NOT;
-                newToken.booleanOperator() = "!";
-                tokens.push_back(newToken);
-                break;
-
-
-
-                //NOTHING BELOW HERE HAS BEEN REFACTORED TO THE TOKENIZER CLASS LAYOUT!!!
-
-
-            default:
-                /*
-                  commented out and replaced with PLACEHOLDER CODE for testing purposes
-                  
-                if(std::isalpha(input[curr])){
-                    dqs += '"';
-                    curr++;
-                    while(input[curr] != ' ' && curr != input.size() && input[curr] != '\n' && isalpha(input[curr])){
-                        dqs += input[curr];
-                        curr++;
-                    }
-                    //at this point it must be a string of something, could be anything though
-                    // but we need to go through and check for every possible string here
-                    // this is also where we would put identifiers, but we need to check for a
-                    // data type before this, which im pretty sure isn't a token
-                    if(dqs == "true") {
-                        tokens.push_back(std::pair<std::string, BNF>
-                                                 ("!=", BNF::BOOLEAN_NOT_EQUAL));
+    int lineNumber = 1;
+    bool inQuote = false;
+    std::string output = "";
+    char currChar;
+    while(inFile.get(currChar)){
+        // edge case of terminating block comment before starting one
+        if(currChar == '*' && !inQuote){
+            char c = inFile.peek();
+            if(c == '/'){
+                std::cerr << "ERROR: Program contains C-style, "
+                          << "unterminated comment on line "
+                          << lineNumber
+                          << std::endl;
+                exit(3);
+            }
+        }
+        if(currChar == '/' && !inQuote){
+            inFile.get(currChar);
+            //start of single line comment
+            if(currChar == '/'){
+                std::string spaces = "  ";
+                while(inFile.get(currChar)){
+                    if(currChar == '\n'){
+                        lineNumber++;
+                        spaces += '\n';
                         break;
                     }
-                    else if(dqs == "false"){
-                        tokens.push_back(std::pair<std::string, BNF>
-                                                 ("!=", BNF::BOOLEAN_NOT_EQUAL));
-                        break;
+                    spaces += ' ';
+                }
+                output += spaces;
 
+            }else if(currChar == '*'){ //start of multiline comment
+                std::string spaces = "  ";
+                int newLines = 0;
+                while(inFile.get(currChar)){
+                    if(currChar == '*'){
+                        if(inFile.peek() == '/'){
+                            inFile.get(currChar);
+                            spaces += "  ";
+                            break;
+                        }
                     }
-                )
-                 */
-
-                //PLACEHOLDER CODE
-                newToken.bnfValue() = UNKNOWN;
-                tokens.push_back(newToken);
+                    if(currChar == '\n'){
+                        newLines++;
+                        spaces += '\n';
+                    }else {
+                        spaces += ' ';
+                    }
+                }
+                // checking for unterminated multiline comment
+                if(inFile.eof()){
+                    std::cerr << "ERROR: Program contains C-style, "
+                              << "unterminated comment on line "
+                              << lineNumber
+                              << std::endl;
+                    exit(2);
+                }
+                output += spaces;
+                lineNumber += newLines;
+            }else{
+                output += "/";
+                output += currChar;
+            }
+        }else{
+            // checking edge case of comments in quotes
+            if(currChar == '\'' || currChar == '"'){
+                inQuote = !inQuote;
+            }
+            output += currChar;
+            if(currChar == '\n'){
+                lineNumber++;
+            }
         }
     }
-    return tokens;
+
+    // output new version of the file
+    //std::cout << output;
+
+
+    uncommentedFile = output;
 }

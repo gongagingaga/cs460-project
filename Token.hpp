@@ -1,9 +1,7 @@
-#include <cctype>
+#ifndef TOKENIZER_TOKEN_HPP
+#define TOKENIZER_TOKEN_HPP
 #include <string>
 #include <iostream>
-#include <utility>
-#include <vector>
-#include <fstream>
 
 enum BNF{
     CHARACTER,
@@ -81,35 +79,39 @@ enum BNF{
 
 class Token {
 public:
-    Token() {}
+    Token(): _isChar{false}, _isString{false}, _isInt{false}, _isFloat{false}, _isBool{false}, _isEOF{false} {};
 
-    //if needed for some reason, we can create boolean functions to re-identify what tokens are:
-    bool isCharacter() { return _bnfValue == CHARACTER; }
-    bool isQuotedString() { return _bnfValue == DOUBLE_QUOTED_STRING || _bnfValue == SINGLE_QUOTED_STRING; }
-    bool isDigit() { return _bnfValue == DIGIT; }
-    bool isboolean() { return _bnfValue == BOOLEAN_FALSE || _bnfValue == BOOLEAN_TRUE; }
-    bool isIdentifier() { return _bnfValue == IDENTIFIER; }
-    bool isDatatypeSpecifier() { return _bnfValue == DATATYPE_SPECIFIER; }
+    std::string BNFtoString(int bnf);
 
-    /*
-     * these functions allow you to store values and retrieve them:
-     * token.character() = 'c';
-     * char a = token.character();
-    */
-    int &bnfValue() { return _bnfValue; }
-    char &character() { return _character; }
-    std::string &booleanOperator() { return _booleanOperator; }
-    std::string &quotedString() { return _quotedString; }
-    int &digit() { return _digit; }
-    bool &boolean() { return _boolean; }
+    void printValue();
 
-    std::string toString();
+    int &bnfValue() { return _bnf; };
+    char &charValue() { return _charValue; };
+    bool &boolValue() {return _boolValue; };
+    float &floatValue() {return _floatValue;};
+    int &intValue() {return _intValue;};
+    std::string &stringValue() { return _stringValue; };
+
+    bool &isChar() { return _isChar; };
+    bool &isString() { return _isString; };
+    bool &isInt() { return _isInt; };
+    bool &isFloat() { return _isFloat; };
+    bool &isBool() { return _isBool; };
+    bool &isEOF() { return _isEOF; };
+
+    void setLineNumber(int lineNum) {_lineNumber = lineNum;};
+    int getLineNumber() {return _lineNumber;};
+
 private:
-    int _bnfValue;
-    char _character = '\0';             //storage for CHARACTER, ESCAPED_CHARACTER, LETTER, HEX_DIGIT and others (L_PAREN, R_PAREN, L_BRACKET, etc.)
-    std::string _booleanOperator;
-    std::string _quotedString;          //storage for DOUBLE_QUOTED_STRING, SINGLE_QUOTED_STRING
-    int _digit = NULL;                  //storage for DIGIT
-    bool _boolean = NULL;               //storage for BOOLEAN_TRUE and BOOLEAN_FALSE
-    std::string _name;                  //storage for IDENTIFIER, DATATYPE_SPECIFIER
+    int _intValue;
+    float _floatValue;
+    char _charValue;
+    bool _boolValue;
+    std::string _stringValue;
+    int _bnf;
+    bool _isChar, _isString, _isInt, _isFloat, _isBool, _isEOF;
+    int _lineNumber;
 };
+
+
+#endif //TOKENIZER_TOKEN_HPP
