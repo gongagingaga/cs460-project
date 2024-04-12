@@ -15,6 +15,7 @@ public:
     */
     void addNode( SymbolTableNode *newNode );
     void removeNode();
+    bool sameScoping( std::string varName, int varScope );
 
     void printParameterList();
     SymbolTableNode* &tail();

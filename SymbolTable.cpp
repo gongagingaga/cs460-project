@@ -98,6 +98,31 @@ void SymbolTable::removeNode( ) {
 
 
 
+/*
+ * varName and  varScope are the variable name and the scope of that variable which
+ * you want to ensure that there are no variables named the same thing
+ * returns true if variable named same thing as varName in the provided varScope
+ * Note: to check against globally defined variables, just pass in 0 to varScope :)
+ */
+bool SymbolTable::sameScoping(std::string varName, int varScope) {
+    for( SymbolTableNode *node = head; node != nullptr; node = node->next() ) {
+        if( node->isEmptyNode() ) {
+            std::cout << "SymbolTable::checkScoping: Invalid node in Symbol Table. Terminating...";
+            exit(3);
+        }
+        if( node->isVariable() ) {
+            if( node->getScope() == varScope ) {
+                if( node->getVariableName() == varName ) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+
 void SymbolTable::printParameterList() {
     //future issue: when to print the parameter list!!
 }
